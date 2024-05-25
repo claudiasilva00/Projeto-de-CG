@@ -1,102 +1,156 @@
 import * as THREE from 'three';
+import { PointerLockControls } from 'PointerLockControls';
+import { OBJLoader } from 'OBJLoader';
+document.addEventListener('DOMContentLoaded', Start);
 
-import {PointerLockControls} from 'PointerLockControls';
-
-import {FBXLoader} from 'FBXLoader';
-
-
-
-document.addEventListener('DOMContentLoaded',Start);
-var objetoImportado;
-var mixerAnimacao;
-var relogio = new THREE.Clock();
-var importer = new FBXLoader();
-
-var cena = new THREE.Scene();
-var camara = new THREE.OrthographicCamera(-1,1,1,-1,-10,10);
-var renderer = new THREE.WebGLRenderer();
-var camaraPerspetiva = new THREE.PerspectiveCamera(45,4/3,0.1,100);
+let objetoImportado;
+let mixerAnimacao;
+const relogio = new THREE.Clock();
+const cena = new THREE.Scene();
+const camara = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
+const renderer = new THREE.WebGLRenderer();
+const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 renderer.setSize(window.innerWidth - 15, window.innerHeight - 80);
-renderer.setClearColor(0xaaaaaa);
+renderer.setClearColor(0x000000); // Set to black for night effect
 document.body.appendChild(renderer.domElement);
 
-var geometria = new THREE.BufferGeometry();
+const geometria = new THREE.BufferGeometry();
 
-mesh.translateZ(-6.0);
+const controls = new PointerLockControls(camaraPerspetiva, renderer.domElement);
+cena.add(controls.getObject());
 
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
 
+document.addEventListener('click', function() {
+    controls.lock();
+}, false);
 
-function loop(){
-   
+document.addEventListener('keydown', onDocumentKeyDown, false);
+document.addEventListener('keyup', onDocumentKeyUp, false);
+
+function onDocumentKeyDown(event) {
+    const keyCode = event.which;
+    switch (keyCode) {
+        case 87: // w
+            moveForward = true;
+            break;
+        case 83: // s
+            moveBackward = true;
+            break;
+        case 65: // a
+            moveLeft = true;
+            break;
+        case 68: // d
+            moveRight = true;
+            break;
+    }
+}
+
+function onDocumentKeyUp(event) {
+    const keyCode = event.which;
+    switch (keyCode) {
+        case 87: // w
+            moveForward = false;
+            break;
+        case 83: // s
+            moveBackward = false;
+            break;
+        case 65: // a
+            moveLeft = false;
+            break;
+        case 68: // d
+            moveRight = false;
+            break;
+    }
+}
+
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+const speed = 50; // Adjust this value to move at a reasonable speed
+
+function updateMovement(delta) {
+    if (controls.isLocked === true) {
+        velocity.x -= velocity.x * 50.0 * delta;
+        velocity.z -= velocity.z * 50.0 * delta;
+
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
+        direction.normalize(); // this ensures consistent movements in all directions
+
+        if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
+
+        controls.moveRight(-velocity.x *10* delta);
+        controls.moveForward(-velocity.z *10* delta);
+    }
+}
+
+function loop() {
+    const delta = relogio.getDelta();
+    updateMovement(delta);
     renderer.render(cena, camaraPerspetiva);
     requestAnimationFrame(loop);
 }
 
+// Add ambient light and spotlights for night effect
+const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // Increased ambient light intensity
+cena.add(ambientLight);
 
-const controls = new PointerLockControls(camaraPerspetiva, Renderer.domElement);
-controls.addEventListener('lock',function(){});
-controls.addEventListener('unlock',function(){});
+// Add a directional light to simulate sunlight
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(10, 20, 10);
+directionalLight.castShadow = true;
+cena.add(directionalLight);
 
-document.addEventListener('click',function(){
-    controls.lock();},false);
+// Add a second directional light for better lighting distribution
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight2.position.set(-10, 20, -10);
+directionalLight2.castShadow = true;
+cena.add(directionalLight2);
 
+// Load skybox textures
+const loader = new THREE.CubeTextureLoader();
+const skyboxTextures = loader.load([
+    './Skybox/posx.jpg',
+    './Skybox/negx.jpg',
+    './Skybox/posy.jpg',
+    './Skybox/negy.jpg',
+    './Skybox/posz.jpg',
+    './Skybox/negz.jpg'
+]);
 
-document.addEventListener('keydown',ondocumentKeyDown,false);
+cena.background = skyboxTextures;
 
-function ondocumentKeyDown(event){
-    var keyCode = event.which;
-    if(keyCode == 87){
-        controls.moveForward(0.25);
-
-    }else if(keyCode == 83){
-        controls.moveForward(-0.25);
-    } else if(keyCode == 65){
-        controls.moveRight(-0.25);
-    } else if(keyCode == 68){
-        controls.moveRight(0.25);
-    }else if(keyCode == 32){
-        if(meshCubo.parent==cena){
-            cena.remove(meshCubo);
-        }else {
-            cena.add(meshCubo);
-        }
-    }
-}
-
-var texture_dir= new THREE.TextureLoader().load('./Skybox/posx.jpg');
-var texture_esq= new THREE.TextureLoader().load('./Skybox/negx.jpg');
-var texture_cima= new THREE.TextureLoader().load('./Skybox/posy.jpg');
-var texture_baixo= new THREE.TextureLoader().load('./Skybox/negy.jpg');
-var texture_frente= new THREE.TextureLoader().load('./Skybox/posz.jpg');
-var texture_tras= new THREE.TextureLoader().load('./Skybox/negz.jpg');
-
-var material = [
-    materialArray.push(new THREE.MeshBasicMaterial({map:texture_dir})),
-    materialArray.push(new THREE.MeshBasicMaterial({map:texture_esq})),
-    materialArray.push(new THREE.MeshBasicMaterial({map:texture_cima})),
-    materialArray.push(new THREE.MeshBasicMaterial({map:texture_baixo})),
-    materialArray.push(new THREE.MeshBasicMaterial({map:texture_frente})),
-    materialArray.push(new THREE.MeshBasicMaterial({map:texture_tras}))
-
-];
-
-for(var i=0;i<6;i++){
-    materialArray[i].side = THREE.BackSide;
-}
-
-var skyboxGeo = new THREE.BoxGeometry(100,100,100);
-
-var skybox = new THREE.Mesh(skyboxGeo,materialArray);
-
-cena.add(skybox);
-
-
-var loader = new THREE.FBXLoader();
-loader.load(
-    './Objetos/tower1.fbx',
+// Load OBJ model
+const objLoader = new OBJLoader();
+objLoader.load(
+    './Objetos/tower1.obj', // Path to your OBJ file
     function(object) {
-        scene.add(object);
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // Apply texture to the material
+                const material = new THREE.MeshStandardMaterial({
+                    map: new THREE.TextureLoader().load('./Objetos/textures/tower.png'),
+                    side: THREE.DoubleSide,
+                    emissive: new THREE.Color(0x404040),
+                    emissiveIntensity: 0.5
+                });
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.position.y = 0; // Adjust Y position if necessary
+        object.scale.set(2, 2, 2); // Adjust scale if necessary
+        cena.add(object);
+
+        // Place the camera at the specified coordinates
+        camaraPerspetiva.position.set(0, object.position.y + 16, 0); // Shortened the camera height
+        camaraPerspetiva.lookAt(object.position);
+
     },
     function(xhr) {
         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -106,12 +160,6 @@ loader.load(
     }
 );
 
-
-
-
-function Start(){
-
-   
-    renderer.render(cena,camaraPerspetiva);
+function Start() {
     requestAnimationFrame(loop);
 }
