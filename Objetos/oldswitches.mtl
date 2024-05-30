@@ -1,0 +1,50 @@
+# Blender 4.1.1 MTL File: 'Sketchfab_2024_03_30_11_45_22.blend'
+# www.blender.org
+
+newmtl Antique_Light_Switch_Type_B_Brass
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Antique Light Switch Type B Brass_AlbedoTransparency.png
+map_refl C:/Antique Light Switch Type B Brass_MetallicSmoothness.png
+map_Bump -bm 1.000000 C:/Antique Light Switch Type B Brass_Normal.png
+
+newmtl Antique_Light_Switch_Type_B_Metallic
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Antique Light Switch Type B Metallic_AlbedoTransparency.png
+map_refl C:/Antique Light Switch Type B Metallic_MetallicSmoothness.png
+map_Bump -bm 1.000000 C:/Antique Light Switch Type B Metallic_Normal.png
+
+newmtl Antique_Light_Switch_Type_B_Painted_Black
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Antique Light Switch Type B PaintedBlack_AlbedoTransparency.png
+map_refl C:/Antique Light Switch Type B PaintedBlack_MetallicSmoothness.png
+map_Bump -bm 1.000000 C:/Antique Light Switch Type B PaintedBlack_Normal.png
+
+newmtl Antique_Light_Switch_Type_B_Painted_Red
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Antique Light Switch Type B PaintedRed_AlbedoTransparency.png
+map_refl C:/Antique Light Switch Type B PaintedRed_MetallicSmoothness.png
+map_Bump -bm 1.000000 C:/Antique Light Switch Type B PaintedRed_Normal.png

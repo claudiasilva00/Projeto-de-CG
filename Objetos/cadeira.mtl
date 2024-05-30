@@ -1,0 +1,62 @@
+# Blender 4.1.1 MTL File: 'control_final.blend'
+# www.blender.org
+
+newmtl initialShadingGroup
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+Pr 1.000000
+Pm 0.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd the-control-room/textures/Ship_MainRoom_ControlPanel_Roughness.png
+
+newmtl lambert2SG
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd the-control-room/textures/MainRoom_CaptainsChair_Base_Color.tga.png
+map_Pm the-control-room/textures/MainRoom_CaptainsChair_Metallic.tga.png
+map_Pr the-control-room/textures/MainRoom_CaptainsChair_Roughness.tga.png
+
+newmtl lambert3SG
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+Pr 1.000000
+Pm 0.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+
+newmtl pasted__lambert2SG
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd the-control-room/textures/Ship_MainRoom_ControlPanel_Base_Color.png
+map_Pm the-control-room/textures/Ship_MainRoom_ControlPanel_Metallic.png
+map_Pr the-control-room/textures/Ship_MainRoom_ControlPanel_Roughness.png
