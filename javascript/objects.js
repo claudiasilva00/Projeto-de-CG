@@ -5,10 +5,14 @@ export function createScene() {
     // Criação da scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("skyblue");
+    const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    //luz ambiente 
-    const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // intensidade
-    scene.add(ambientLight);
+    //variaveis 
+    let chair, spotLightTarget;
+
+    // luz ambiente 
+    // const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // intensidade
+    // scene.add(ambientLight);
 
     //sol
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -16,11 +20,25 @@ export function createScene() {
     directionalLight.castShadow = true;
     scene.add(directionalLight);
 
-    // mas uma luz
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight2.position.set(-10, 20, -10);
-    directionalLight2.castShadow = true;
-    scene.add(directionalLight2);
+    //spotlight
+     // Directional light for general illumination
+     const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+     directionalLight.position.set(10, 20, 10);
+     directionalLight.castShadow = true;
+     scene.add(directionalLight);
+ 
+     // Spotlight for chair
+     const spotlight = new THREE.SpotLight(0xff0000, 2); // Red light with intensity
+     spotlight.position.set(0, 116.5,58); // Position the spotlight above the chair
+     //0.9791562630023608, y: 115.7070404093403, z: 60.341531771140225
+     spotlight.target.position.set(0, 15*6, 12*6); // Target the chair
+     spotlight.angle = Math.PI / 5; // Narrower beam angle
+     spotlight.penumbra = 0.1; // Softer edges
+     spotlight.decay = 1; // Light decay
+     spotlight.distance = 60; // Limit the distance the light reaches
+     spotlight.castShadow = true;
+     scene.add(spotlight);
+     scene.add(spotlight.target);
 
     var texture_dir = new THREE.TextureLoader().load('./Skybox/posx.jpg');      
     var texture_esq = new THREE.TextureLoader().load('./Skybox/negx.jpg');    
@@ -57,7 +75,7 @@ export function createScene() {
     //torre principal
     const objLoader = new OBJLoader();
     objLoader.load(
-        './Objetos/tower_noD.obj', 
+        './Objetos/tower_noDW.obj', 
         function(object) {
             object.traverse(function(child) {
                 if (child.isMesh) {
@@ -114,6 +132,8 @@ export function createScene() {
             object.scale.set(0.01*6, 0.01*6, 0.01*6);
             object.position.set(-2*6, 15*6, 16*6);
             scene.add(object);
+
+           
         },
         function(xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -254,7 +274,7 @@ export function createScene() {
     );
     //porta 2
     const objLoader6 = new OBJLoader();
-    objLoader5.load(
+    objLoader6.load(
         './Objetos/door.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -286,6 +306,56 @@ export function createScene() {
         function(error) {
             console.log('An error happened: ' + error);
         }
+        
     );
+
+    const objLoader7 = new OBJLoader();
+    objLoader7.load(
+        './Objetos/lamp4.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // Apply textures
+                    const baseColorMap = new THREE.TextureLoader().load('./Objetos/Textures/lamp/plastic_bump_1.jpg');
+                    const metallicMap = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg');
+                    
+
+                    const material = new THREE.MeshStandardMaterial({
+                        map: baseColorMap,
+                        metalnessMap: metallicMap,
+                        
+                        side: THREE.DoubleSide
+                    });
+
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.scale.set(1, 1, 1) ;
+            object.position.set(0, 116,55);
+            object.rotation.y = Math.PI/2;
+            scene.add(object);
+
+        
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+
+
+        
+    );
+
+
+    
+
+
+
+
+
     return scene;
 }

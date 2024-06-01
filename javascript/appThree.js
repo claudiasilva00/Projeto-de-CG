@@ -32,7 +32,7 @@ document.addEventListener('keyup', function(event) {
 
 function update_movement() {
     let direction = new THREE.Vector3();
-    console.log(camaraPerspetiva.position);
+   //console.log(camaraPerspetiva.position);
     if (keyState['w']) { // w
         direction.z = -1;
     }
