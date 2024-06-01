@@ -6,13 +6,22 @@ export function createScene() {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("skyblue");
     const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+   // Uso da função create_locker
 
+var locker1 = create_locker(0, 14.05*6, 2);
+var locker2 = create_locker(4, 14.05*6, 2);
+scene.add(locker1);
+scene.add(locker2);
+
+
+
+    
     //variaveis 
     let chair, spotLightTarget;
 
-    // luz ambiente 
-    // const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // intensidade
-    // scene.add(ambientLight);
+    //luz ambiente 
+    const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // intensidade
+    scene.add(ambientLight);
 
     //sol
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -39,6 +48,7 @@ export function createScene() {
      spotlight.castShadow = true;
      scene.add(spotlight);
      scene.add(spotlight.target);
+
 
     var texture_dir = new THREE.TextureLoader().load('./Skybox/posx.jpg');      
     var texture_esq = new THREE.TextureLoader().load('./Skybox/negx.jpg');    
@@ -350,12 +360,79 @@ export function createScene() {
         
     );
 
+/* OBJETOS COMPLEXOS*/
+function create_locker(x, y, z, isDoorOpen = false) {
+    var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
-    
+    // Texturas
+    var wallTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/plastic_bump_1.jpg');
+    var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg');
 
+    // Função para criar uma parede
+    function create_wall(width, height, depth, material) {
+        var geometry = new THREE.BoxGeometry(width, height, depth);
+        return new THREE.Mesh(geometry, material);
+    }
 
+    // Materiais
+    var wallMaterial = new THREE.MeshPhongMaterial({ map: wallTexture });
+    var doorMaterial = new THREE.MeshPhongMaterial({ map: doorTexture });
 
+    // Espessura das paredes e portas
+    var wallThickness = 0.05;
+    var doorThickness = 0.02;
 
+    // Dimensões do cacifo
+    var lockerWidth = 1;
+    var lockerHeight = 4;
+    var lockerDepth = 1;
+
+    // Criando as paredes do cacifo
+    var leftWall = create_wall(wallThickness, lockerHeight, lockerDepth, wallMaterial);
+    leftWall.position.set(-lockerWidth / 2 + wallThickness / 2, lockerHeight / 2, 0);
+
+    var rightWall = create_wall(wallThickness, lockerHeight, lockerDepth, wallMaterial);
+    rightWall.position.set(lockerWidth / 2 - wallThickness / 2, lockerHeight / 2, 0);
+
+    var topWall = create_wall(lockerWidth, wallThickness, lockerDepth, wallMaterial);
+    topWall.position.set(0, lockerHeight - wallThickness / 2, 0);
+
+    var bottomWall = create_wall(lockerWidth, wallThickness, lockerDepth, wallMaterial);
+    bottomWall.position.set(0, wallThickness / 2, 0);
+
+    var backWall = create_wall(lockerWidth, lockerHeight, wallThickness, wallMaterial);
+    backWall.position.set(0, lockerHeight / 2, -lockerDepth / 2 + wallThickness / 2);
+
+    // Criando a porta do cacifo
+    var door = create_wall(lockerWidth - wallThickness, lockerHeight, doorThickness, doorMaterial);
+    door.position.set(0, lockerHeight / 2, lockerDepth / 2 - doorThickness / 2);
+
+    // Adicionando as paredes ao grupo
+    locker.add(leftWall);
+    locker.add(rightWall);
+    locker.add(topWall);
+    locker.add(bottomWall);
+    locker.add(backWall);
+
+    // Porta aberta
+    if (isDoorOpen) {
+        // Criar um pivot para a porta
+        var doorPivot = new THREE.Object3D();
+        doorPivot.position.set(-lockerWidth / 2 + wallThickness / 2, lockerHeight / 2, lockerDepth / 2 - doorThickness / 2);
+        door.position.set(lockerWidth / 2 - wallThickness, 0, 0);
+        doorPivot.add(door);
+        locker.add(doorPivot);
+        doorPivot.rotation.y = Math.PI / 2;
+    } else {
+        locker.add(door);
+    }
+
+    // Posição do cacifo
+    locker.position.set(x, y, z);
+
+    return locker;
+
+}
 
     return scene;
 }
