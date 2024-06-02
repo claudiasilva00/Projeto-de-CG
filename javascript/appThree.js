@@ -14,6 +14,7 @@ OrthographicCamera.position.set(0, 1000, 0);
 OrthographicCamera.lookAt(0, 0, 0);
 OrthographicCamera.updateProjectionMatrix();
 let ray = new THREE.Raycaster();
+let intersects = [];
 let geometry = new THREE.BufferGeometry();
 let points = [];
 points[0] = new THREE.Vector3(0, 0, 0);
@@ -27,8 +28,19 @@ let targetPosition = { x: 30, y: 100, z: 100 };
 let smoothFactor = 0.035; // Adjust this value to change the smoothness
 let keyState = {};
 
+
+
 document.addEventListener('click', function() {
     controls.lock();
+    if (intersects.length > 0) {
+        try {
+            console.log(intersects[0].point);
+            intersects[0].object.interact();
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
 }, false);
 
 document.addEventListener('keydown', function(event) {
@@ -92,11 +104,17 @@ function update_raycaster() {
     points[1] = new THREE.Vector3(camaraPerspetiva.position.x + (100 * direction.x), camaraPerspetiva.position.y + (100 * direction.y), camaraPerspetiva.position.z + (100 * direction.z));
     geometry.setFromPoints(points);
     // Get the closest intersection
-    let intersects = ray.intersectObjects(cena.children);
+    intersects = ray.intersectObjects(cena.children);
     if (intersects.length > 0) {
-        console.log(intersects[0].object.name);
-        try {
-            intersects[0].interact();
+            if ( typeof intersects[0].object.interact === 'function') { 
+            // If the object has an interact function, make it shine
+            intersects[0].object.material.emissive.set(0x00ff00); // Set the emissive color to green
+            intersects[0].object.material.emissiveIntensity = 0.1; // Increase the emissive intensity
+            //make the object shine fade out
+            new TWEEN.Tween(intersects[0].object.material.emissive)
+            .to({ r: 0, g: 0, b: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
             // Show the overlay
             document.getElementById('overlay').style.display = 'block';
             // Hide the overlay after 3 seconds
@@ -104,10 +122,7 @@ function update_raycaster() {
                 document.getElementById('overlay').style.display = 'none';
             }, 3000);
         }
-        catch (error) {
-        }
     }
-
 }
 
 function get_camara_direction() {
@@ -116,8 +131,22 @@ function get_camara_direction() {
     return direction;
 }
 
+function animate() {
+    requestAnimationFrame(animate);
+    TWEEN.update();
+}
+
+
 function loop() {
     direction = get_camara_direction();
+    cena.children.forEach((child) => {
+        try {
+        child.material.emissiveIntensity = 0;
+        }
+        catch (error) {
+            //console.log(error);
+        }
+    });
     key_bindings();
     update_movement();
     update_raycaster();
@@ -127,6 +156,7 @@ function loop() {
 }
 
 function Start() {
+    animate();
     requestAnimationFrame(loop)
     camara = camaraPerspetiva;
     // muda a posição da câmera

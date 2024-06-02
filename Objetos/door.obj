@@ -1,7 +1,7 @@
 # Blender 4.1.1
 # www.blender.org
 mtllib door.mtl
-o Symmetry
+o Door
 v -0.008921 0.231393 0.095212
 v -0.008921 0.230362 0.096782
 v -0.008921 0.228792 0.097813

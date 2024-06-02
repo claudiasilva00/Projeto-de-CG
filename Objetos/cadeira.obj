@@ -1,7 +1,7 @@
 # Blender 4.1.1
 # www.blender.org
 mtllib cadeira.mtl
-o Control.002
+o Cadeira
 v 113.404266 -115.746513 -515.236084
 v 113.404266 -112.001678 -515.236084
 v 113.404266 -112.001678 -509.886292

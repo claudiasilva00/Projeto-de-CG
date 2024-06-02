@@ -117,8 +117,7 @@ scene.add(locker2);
         }
     );
     // cadeira
-    const objLoader1 = new OBJLoader();
-    objLoader1.load(
+    objLoader.load(
         './Objetos/cadeira.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -153,8 +152,7 @@ scene.add(locker2);
         }
     );
     // mesa
-    const objLoader2 = new OBJLoader();
-    objLoader2.load(
+    objLoader.load(
         './Objetos/mesa1.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -187,8 +185,7 @@ scene.add(locker2);
         }
     );
     // interuptor
-    const objLoader3 = new OBJLoader();
-    objLoader3.load(
+    objLoader.load(
         './Objetos/lightswitch_obj.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -218,8 +215,7 @@ scene.add(locker2);
         }
     );
     // Load the first OBJ model with its materials
-    const objLoader4 = new OBJLoader();
-    objLoader4.load(
+    objLoader.load(
         './Objetos/lightswitch_obj.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -249,8 +245,7 @@ scene.add(locker2);
         }
     );
     //porta
-    const objLoader5 = new OBJLoader();
-    objLoader5.load(
+    objLoader.load(
         './Objetos/door.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -266,14 +261,43 @@ scene.add(locker2);
                         roughnessMap: roughnessMap,
                         side: THREE.DoubleSide
                     });
-
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.geometry.translate( 0, 0, 0.1 );
+                    child.name = 'door_left';
+                    child.open = false; // State of the door
+                    child.interact = function() {
+                        if (!child.open) {
+                            new TWEEN.Tween(child.rotation)
+                            .to({ y: Math.PI / -2 }, 1000) // Rotate the door to 90 degrees (open position) in 1 second
+                            .start()
+                            .onStart(function() {
+                                console.log('Door opening');
+                                //doorSound.play(); // Play the door opening sound
+                              })
+                            .onComplete(function () {
+                                child.open = true; // Update the state
+                            });
+                            
+                        } else {
+                            new TWEEN.Tween(child.rotation)
+                            .to({ y: 0 }, 1000) // Rotate the door to 0 degrees (closed position) in 1 second
+                            .start()
+                            .onStart(function() {
+                                console.log('Door closing');
+                                //cdoorSound.play(); // Play the door closing sound
+                            })
+                            .onComplete(function () {
+                                child.open = false; // Update the state
+                            });
+                        }
+                    }
                 }
             });
             object.scale.set(7*6, 9*6, 8.5*6);
-            object.position.set(-6*6, 13.5*6,0.6*6);
+            object.position.set(-6*6, 13.5*6,-1.5);
             scene.add(object);
+            scene.door_left = object;
         },
         function(xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -282,9 +306,9 @@ scene.add(locker2);
             console.log('An error happened: ' + error);
         }
     );
+    
     //porta 2
-    const objLoader6 = new OBJLoader();
-    objLoader6.load(
+    objLoader.load(
         './Objetos/door.obj', 
         function(object) {
             object.traverse(function(child) {
@@ -303,12 +327,41 @@ scene.add(locker2);
 
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.geometry.translate( 0, 0, 0.1 );
+                    child.name = 'door_right';
+                    child.open = false; // State of the door
+                    child.interact = function() {
+                        if (!child.open) {
+                            new TWEEN.Tween(child.rotation)
+                            .to({ y: Math.PI / -2 }, 1000) // Rotate the door to 90 degrees (open position) in 1 second
+                            .start()
+                            .onStart(function() {
+                                console.log('Door opening');
+                                //doorSound.play(); // Play the door opening sound
+                              })
+                            .onComplete(function () {
+                                child.open = true; // Update the state
+                            });
+                            
+                        } else {
+                            new TWEEN.Tween(child.rotation)
+                            .to({ y: 0 }, 1000) // Rotate the door to 0 degrees (closed position) in 1 second
+                            .start()
+                            .onStart(function() {
+                                console.log('Door closing');
+                                //cdoorSound.play(); // Play the door closing sound
+                            })
+                            .onComplete(function () {
+                                child.open = false; // Update the state
+                            });
+                        }
+                    }
                 }
             });
             object.scale.set(7*6, 9*6, 8.5*6) ;
-            object.position.set(36.5, 13.5*6,0.6*6);
+            object.position.set(36.5, 13.5*6,-1.5);
             scene.add(object);
-            
+            scene.door_right = object;
         },
         function(xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -319,8 +372,7 @@ scene.add(locker2);
         
     );
 
-    const objLoader7 = new OBJLoader();
-    objLoader7.load(
+    objLoader.load(
         './Objetos/lamp4.obj', 
         function(object) {
             object.traverse(function(child) {
