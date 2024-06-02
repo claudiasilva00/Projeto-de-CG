@@ -370,13 +370,17 @@ var holder = create_holder();
     holder.position.set(-35, 17.75 * 6, 18); // Adjust the position as needed
     scene.add(holder);
 
+
+  
+
+
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
     // Texturas
     var wallTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metal.jpg');
-    var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg');
-    var handleTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg'); // Textura da maçaneta
+    var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalDR.jpg');
+    var handleTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalH.jpg'); // Textura da maçaneta
 
     // Função para criar uma parede
     function create_wall(width, height, depth, material) {
@@ -384,11 +388,65 @@ function create_locker(x, y, z, isDoorOpen = false) {
         return new THREE.Mesh(geometry, material);
     }
 
+    
+
     // Função para criar uma maçaneta
     function create_handle() {
-        var handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 32);
-        var handleMaterial = new THREE.MeshPhongMaterial({ map: handleTexture });
-        var handle = new THREE.Mesh(handleGeometry, handleMaterial);
+        // var handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 32);
+        // var handleMaterial = new THREE.MeshPhongMaterial({ map: handleTexture });
+        // var handle = new THREE.Mesh(handleGeometry, handleMaterial);
+        // return handle;
+
+        var handle = new THREE.Group(); // Group to store all parts of the holder
+    
+
+        // Textures
+        var metalTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalH.jpg'); // Assuming the texture for metal
+    
+        // Function to create a cylindrical rod
+        function create_rod(radius, height, material) {
+            var geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
+            return new THREE.Mesh(geometry, material);
+        }
+    
+        // Materials
+        var metalMaterial = new THREE.MeshPhongMaterial({ map: metalTexture });
+    
+        // Dimensions
+        var rodRadius = 0.25;
+        var verticalRodHeight = 2;
+        var horizontalRodLength = 6;
+    
+    
+        
+    
+        // Creating the vertical rods
+        var leftVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
+        leftVerticalRod.position.set(-horizontalRodLength / 3, verticalRodHeight / 2 + 0.05 / 2, 0); // Adjusting height to start from base
+    
+        var rightVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
+        rightVerticalRod.position.set(horizontalRodLength / 3, verticalRodHeight / 2 + 0.05 / 2, 0); // Adjusting height to start from base
+    
+        // Creating the horizontal rod
+        var horizontalRodGeometry = new THREE.CylinderGeometry(rodRadius, rodRadius, horizontalRodLength, 32);
+        var horizontalRod = new THREE.Mesh(horizontalRodGeometry, metalMaterial);
+        horizontalRod.rotation.z = Math.PI / 2;
+        horizontalRod.position.set(0, verticalRodHeight + 0.05 / 2, 0); // Position at the top of vertical rods
+    
+       
+    
+        // Adding the components to the holder group
+       
+        handle.add(leftVerticalRod);
+        handle.add(rightVerticalRod);
+        handle.add(horizontalRod);
+         handle.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2); // Rotate the holder to be vertical
+        handle.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
+        
+        // handle.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
+         // Adjust the position as necessary
+         handle.scale.set(1/10, 1/10, 1/10);
+         
         return handle;
     }
 
@@ -457,7 +515,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // Adicionando a maçaneta à porta
     var handle = create_handle();
-    handle.position.set(0, lockerHeight / 2, lockerDepth / 2);
+    handle.position.set(0.35, wallThickness , 0);
     door.add(handle);
 
     // Adicionando as paredes ao grupo
@@ -518,6 +576,8 @@ function create_holder() {
     horizontalRod.rotation.z = Math.PI / 2;
     horizontalRod.position.set(0, verticalRodHeight + 0.05 / 2, 0); // Position at the top of vertical rods
 
+   
+
     // Adding the components to the holder group
     holder.add(base);
     holder.add(leftVerticalRod);
@@ -531,6 +591,8 @@ function create_holder() {
      holder.scale.set(3, 2, 3);
     return holder;
 }
+
+
 
 return scene;
 }
