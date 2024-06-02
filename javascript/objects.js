@@ -14,9 +14,16 @@ scene.add(locker1);
 scene.add(locker2);
 
 
+ // Adicionar a ventoinha de teto à cena
 
+ 
 
-
+  // Usage example
+  
+  const { fan, rotateFanBlades } = createFan();
+  scene.add(fan);
+fan.scale.set(2, 2, 2);
+ fan.position.set(0, 19.55*6, -4); // Ajustar a posição conforme necessário
 
 
 
@@ -371,7 +378,55 @@ var holder = create_holder();
     scene.add(holder);
 
 
+ 
+
+    function createFan() {
+        const fan = new THREE.Group();
+    
+        // Create the central motor
+        const motorGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);
+        const motorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const motor = new THREE.Mesh(motorGeometry, motorMaterial);
+        motor.position.y = -1; // Adjust position to be closer to the ceiling
+        fan.add(motor);
+    
+        // Create the blades
+        const bladeGeometry = new THREE.BoxGeometry(10, 0.2, 2);
+        const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+    
+        // Function to create and position blades
+        function createBlade(rotationAngle) {
+            const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+            blade.position.set(5, 0, 0); // Position blade end at rotation axis
+            blade.rotation.y = rotationAngle; // Rotate blade to the correct angle
+            return blade;
+        }
+    
+        const blade1 = createBlade(0); // Blade 1
+        const blade2 = createBlade(Math.PI / 2); // Blade 2 (90 degrees)
+        const blade3 = createBlade(Math.PI); // Blade 3 (180 degrees)
+        const blade4 = createBlade(3 * Math.PI / 2); // Blade 4 (270 degrees)
+    
+        if (blade1) fan.add(blade1);
+        if (blade2) fan.add(blade2);
+        if (blade3) fan.add(blade3);
+        if (blade4) fan.add(blade4);
+    
+        // Rotate the fan blades over time
+        const rotateFanBlades = () => {
+            fan.rotation.y += 0.01;
+        };
+    
+        return { fan, rotateFanBlades };
+    }
+    
   
+    
+  
+  
+    
+   
+    
 
 
 function create_locker(x, y, z, isDoorOpen = false) {
@@ -390,12 +445,9 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     
 
-    // Função para criar uma maçaneta
+    // Função para criar a maçaneta
     function create_handle() {
-        // var handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 32);
-        // var handleMaterial = new THREE.MeshPhongMaterial({ map: handleTexture });
-        // var handle = new THREE.Mesh(handleGeometry, handleMaterial);
-        // return handle;
+       
 
         var handle = new THREE.Group(); // Group to store all parts of the holder
     
