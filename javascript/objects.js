@@ -4,7 +4,7 @@ import { OBJLoader } from 'OBJLoader';
 export function createScene() {
     // Criação da scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("skyblue");
+    scene.background = new THREE.Color("black");
 
     //luz ambiente 
     const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // intensidade
@@ -45,7 +45,7 @@ export function createScene() {
         materialArray[i].side = THREE.BackSide;
 
     //Criação da geometria do skybox
-    var skyboxGeo = new THREE.BoxGeometry(1000, 1000, 1000);
+    var skyboxGeo = new THREE.BoxGeometry(10000, 10000, 10000);
 
     //Criação da mesh que vai conter a geometria e as texturas
     var skybox = new THREE.Mesh(skyboxGeo, materialArray);
@@ -75,11 +75,6 @@ export function createScene() {
             object.position.y = 0; 
             object.scale.set(2*6, 2*6, 2*6); 
             scene.add(object);
-
-            // muda a posição da câmera
-            camaraPerspetiva.position.set(4*6, object.position.y + 16.5*6, 17*6); 
-            camaraPerspetiva.lookAt(4, object.position.y + 15, 20);
-
         },
         function(xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -287,5 +282,18 @@ export function createScene() {
             console.log('An error happened: ' + error);
         }
     );
+    
+    const OrthographicSphere = create_camera_sphere();
+    scene.add(OrthographicSphere);
+    scene.OrthographicSphere = OrthographicSphere; // Add this line
     return scene;
+}
+
+function create_camera_sphere() {
+    var textura = new THREE.TextureLoader().load('./Objetos/textures/SmileyFace.png');
+    // Create a material with the texture
+    var materialTextura = new THREE.MeshBasicMaterial({ map: textura });
+    // Add the cube to your scene
+    var geometry = new THREE.SphereGeometry(5, 32, 32);
+    return new THREE.Mesh(geometry, materialTextura);
 }

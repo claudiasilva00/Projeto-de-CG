@@ -4,18 +4,27 @@ import { PointerLockControls } from 'PointerLockControls';
 
 document.addEventListener('DOMContentLoaded', Start);
 
-//const camara = new THREE.OrthographicCamera(-1, 1, 1, -10, 10);
+let camara;
 let cena = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
-const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camaraPerspetiva = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+camaraPerspetiva.position.set(30,100, 100);
+const OrthographicCamera = new THREE.OrthographicCamera(-100, 100, 100, -100, 0, 10000);
+OrthographicCamera.position.set(0, 1000, 0);
+OrthographicCamera.lookAt(0, 0, 0);
+OrthographicCamera.updateProjectionMatrix();
 let ray = new THREE.Raycaster();
 let geometry = new THREE.BufferGeometry();
-let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0x0000ff}));
 let points = [];
+points[0] = new THREE.Vector3(0, 0, 0);
+points[1] = new THREE.Vector3(0, 100, 0);
+geometry.setFromPoints(points);
+let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xff0000}));
+let direction = new THREE.Vector3();
 const controls = new PointerLockControls(camaraPerspetiva, renderer.domElement);
-
+let move = new THREE.Vector3();
 let targetPosition = { x: 30, y: 100, z: 100 };
-let smoothFactor = 0.01; // Adjust this value to change the smoothness
+let smoothFactor = 0.035; // Adjust this value to change the smoothness
 let keyState = {};
 
 document.addEventListener('click', function() {
@@ -24,88 +33,106 @@ document.addEventListener('click', function() {
 
 document.addEventListener('keydown', function(event) {
     keyState[event.key] = true;
+    if (event.key === 'c') {change_camera();}
 }, false);
 
 document.addEventListener('keyup', function(event) {
     keyState[event.key] = false;
 }, false);
 
-function update_movement() {
-    let direction = new THREE.Vector3();
-    console.log(camaraPerspetiva.position);
+function key_bindings() {
     if (keyState['w']) { // w
-        direction.z = -1;
+        move.z = -1;
     }
     if (keyState['s']) { // s
-        direction.z = 1;
+        move.z = 1;
     }
     if (keyState['a']) { // a
-        direction.x = -1;
+        move.x = -1;
     }
     if (keyState['d']) { // d
-        direction.x = 1;
-    }
+        move.x = 1;
+    }move
     if (keyState[" "]) { // space
-        direction.y = 1;
+        move.y = 1;
     }
     if (keyState['Shift']) { // shift
-        direction.y = -1;
+        move.y = -1;
     }
+}
 
-
-    // Rotate the direction by the camera's current rotation
-    direction.applyQuaternion(camaraPerspetiva.quaternion);
-
+function update_movement() {
+    move.applyQuaternion(camaraPerspetiva.quaternion);
     // Add the direction to the target position
-    targetPosition.x += direction.x;
-    targetPosition.y += direction.y;
-    targetPosition.z += direction.z;
+    targetPosition.x += move.x;
+    targetPosition.y += move.y;
+    targetPosition.z += move.z;
+    move = new THREE.Vector3();
+    // Adjust the camera position by a fraction of the difference
+    camaraPerspetiva.position.x +=  (targetPosition.x - camaraPerspetiva.position.x) * smoothFactor;
+    camaraPerspetiva.position.y +=  (targetPosition.y - camaraPerspetiva.position.y) * smoothFactor;
+    camaraPerspetiva.position.z +=  (targetPosition.z - camaraPerspetiva.position.z) * smoothFactor;
+}
+
+function change_camera() {
+    if(camara == camaraPerspetiva){
+        console.log("perspetiva");
+        camara = OrthographicCamera;
+    }else{
+        console.log("ortografica");
+        camara = camaraPerspetiva;
+    }
 }
 
 function update_raycaster() {
     //update ray direction
     ray.setFromCamera({x: 0, y: 0}, camaraPerspetiva);
-    // Add the origin of the raycaster to the points array
-    points[0] = ray.ray.origin;
-    points[1] = new THREE.Vector3(
-        ray.ray.origin.x + ray.ray.direction.x * 50, 
-        ray.ray.origin.y + ray.ray.direction.y * 50, 
-        ray.ray.origin.z + ray.ray.direction.z * 50
-    );
+    // set the line to start at the camera position and go in the direction of the ray
+    points[0] = new THREE.Vector3(camaraPerspetiva.position.x, camaraPerspetiva.position.y, camaraPerspetiva.position.z);
+    points[1] = new THREE.Vector3(camaraPerspetiva.position.x + (100 * direction.x), camaraPerspetiva.position.y + (100 * direction.y), camaraPerspetiva.position.z + (100 * direction.z));
     geometry.setFromPoints(points);
-    // Render the scene
+    // Get the closest intersection
+    let intersects = ray.intersectObjects(cena.children);
+    if (intersects.length > 0) {
+        console.log(intersects[0].object.name);
+        try {
+            intersects[0].interact();
+            // Show the overlay
+            document.getElementById('overlay').style.display = 'block';
+            // Hide the overlay after 3 seconds
+            setTimeout(function() {
+                document.getElementById('overlay').style.display = 'none';
+            }, 3000);
+        }
+        catch (error) {
+        }
+    }
+
+}
+
+function get_camara_direction() {
+    let direction = new THREE.Vector3();
+    camaraPerspetiva.getWorldDirection(direction);
+    return direction;
 }
 
 function loop() {
-    update_raycaster();
+    direction = get_camara_direction();
+    key_bindings();
     update_movement();
-    
-    // Adjust the camera position by a fraction of the difference
-    camaraPerspetiva.position.x +=  (targetPosition.x - camaraPerspetiva.position.x) * smoothFactor;
-    camaraPerspetiva.position.y +=  (targetPosition.y - camaraPerspetiva.position.y) * smoothFactor;
-    camaraPerspetiva.position.z +=  (targetPosition.z - camaraPerspetiva.position.z) * smoothFactor;
-
-
-    renderer.render(cena, camaraPerspetiva);
+    update_raycaster();
+    cena.OrthographicSphere.rotation.set(camaraPerspetiva.rotation.x, camaraPerspetiva.rotation.y + 90 * (Math.PI / 180), camaraPerspetiva.rotation.z);
+    renderer.render(cena, camara);
     requestAnimationFrame(loop);
 }
 
 function Start() {
     requestAnimationFrame(loop)
+    camara = camaraPerspetiva;
+    // muda a posição da câmera
     renderer.setSize(window.innerWidth, window.innerHeight);
     cena = createScene();
-    cena.add(controls.getObject());
-    document.body.appendChild(renderer.domElement);
-    // Add the origin of the raycaster to the points array
-    points.push(ray.ray.origin);
-    // Add a point in the direction of the raycaster to the points array
-    points.push(new THREE.Vector3(
-        ray.ray.origin.x + ray.ray.direction.x * 50, 
-        ray.ray.origin.y + ray.ray.direction.y * 50, 
-        ray.ray.origin.z + ray.ray.direction.z * 50
-    )); 
-
-    geometry.setFromPoints(points);
-    
     cena.add(line);
+    cena.OrthographicSphere.position.set(OrthographicCamera.position.x, OrthographicCamera.position.y, OrthographicCamera.position.z);
+    document.body.appendChild(renderer.domElement);
 }
