@@ -14,9 +14,16 @@ scene.add(locker1);
 scene.add(locker2);
 
 
+ // Adicionar a ventoinha de teto à cena
 
+ 
 
-
+  // Usage example
+  
+  const { fan, rotateFanBlades } = createFan();
+  scene.add(fan);
+  fan.scale.set(2, 2, 2);
+  fan.position.set(0, 19.9*6, 8); // Ajustar a posição conforme necessário
 
 
 
@@ -417,13 +424,122 @@ var holder = create_holder();
     holder.position.set(-35, 17.75 * 6, 18); // Adjust the position as needed
     scene.add(holder);
 
+
+ 
+
+    function createFan() {
+        const fan = new THREE.Group();
+    
+        // Materiais
+        var texture = new THREE.TextureLoader().load('./Objetos/textures/old-metalH.jpg');
+        var texture1 = new THREE.TextureLoader().load('./Objetos/textures/old-metalB.jpg');
+        var texture2 = new THREE.TextureLoader().load('./Objetos/textures/old-wood.jpg');
+        var texture3 = new THREE.TextureLoader().load('./Objetos/textures/old-metal.png');
+        var texture4 = new THREE.TextureLoader().load('./Objetos/textures/thread.jgp');
+
+
+        // Create the central motor   
+        const motorGeometry = new THREE.CylinderGeometry(0.75, 0.75, 3, 40);
+        //var motorMaterial = new THREE.MeshStandardMaterial({ map:texture});
+        const motorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const motor = new THREE.Mesh(motorGeometry, motorMaterial);
+        motor.position.y = -1; // Adjust position to be closer to the ceiling
+        fan.add(motor);
+
+        const motor2Geometry = new THREE.CylinderGeometry(1, 1, 0.2, 40);
+        //var motor2Material = new THREE.MeshStandardMaterial({ map:texture1});
+        const motor2Material = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        const motor2 = new THREE.Mesh(motor2Geometry, motor2Material);
+        motor2.position.y = -2.25; // Adjust position to be closer to the ceiling
+        fan.add(motor2);
+
+        const motor3Geometry = new THREE.CylinderGeometry(1, 1, 0.2, 40);
+        //var motor3Material = new THREE.MeshStandardMaterial({ map:texture1});
+        const motor3Material = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        const motor3 = new THREE.Mesh(motor3Geometry, motor3Material);
+        motor3.position.y = -1.75; // Adjust position to be closer to the ceiling
+        fan.add(motor3);
+
+        //create the turning on/off wire
+        const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 5, 40);
+        var wireMaterial = new THREE.MeshStandardMaterial({ map:texture1});
+        const wire = new THREE.Mesh(wireGeometry, wireMaterial);
+        wire.position.y = -4.75; // Adjust position to be closer to the ceiling
+        wire.position.x = 0.85; // Adjust position to be closer to the ceiling
+        fan.add(wire);
+        wire.scale.set(1, 1, 1);
+
+        //sphere to hold the wire
+        const sphereGeometry = new THREE.SphereGeometry(0.5, 40, 40);
+        const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.y = -7; // Adjust position to be closer to the ceiling
+        sphere.position.x = 0.8; // Adjust position to be closer to the ceiling
+        fan.add(sphere);
+        sphere.scale.set(0.3, 0.3, 0.3);
+
+        // light sphere 
+        const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
+        const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const light = new THREE.Mesh(lightGeometry, lightMaterial);
+        light.position.y = -2.25; // Adjust position to be closer to the ceiling
+        light.position.x = 0; // Adjust position to be closer to the ceiling
+        light.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
+        fan.add(light);
+        light.scale.set(0.85, 0.85, 0.85);
+
+      
+        
+
+
+
+
+
+
+
+
+    
+        // Create the blades
+        const bladeGeometry = new THREE.BoxGeometry(12, 0.2, 1.2);
+
+        //var bladeMaterial = new THREE.MeshStandardMaterial({ map:texture2});
+        const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xDDDDDD });
+      
+    
+        // Function to create and position blades
+        function createBlade(rotationAngle) {
+            const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+            blade.position.set(0, -2, 0); // Position blade end at rotation axis
+            blade.rotation.y = rotationAngle; // Rotate blade to the correct angle
+            return blade;
+        }
+    
+        const blade1 = createBlade(0); // Blade 1
+        const blade2 = createBlade(Math.PI / 2); // Blade 2 (90 degrees)
+        const blade3 = createBlade(Math.PI); // Blade 3 (180 degrees)
+        const blade4 = createBlade(3 * Math.PI / 2); // Blade 4 (270 degrees)
+    
+        if (blade1) fan.add(blade1);
+        if (blade2) fan.add(blade2);
+        if (blade3) fan.add(blade3);
+        if (blade4) fan.add(blade4);
+    
+        // Rotate the fan blades over time
+        const rotateFanBlades = () => {
+            fan.rotation.y += 0.01;
+        };
+    
+        return { fan, rotateFanBlades };
+    }
+    
+  
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
     // Texturas
     var wallTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metal.jpg');
-    var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg');
-    var handleTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg'); // Textura da maçaneta
+    var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalDR.jpg');
+    var handleTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalH.jpg'); // Textura da maçaneta
 
     // Função para criar uma parede
     function create_wall(width, height, depth, material) {
@@ -431,11 +547,62 @@ function create_locker(x, y, z, isDoorOpen = false) {
         return new THREE.Mesh(geometry, material);
     }
 
-    // Função para criar uma maçaneta
+    
+
+    // Função para criar a maçaneta
     function create_handle() {
-        var handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 32);
-        var handleMaterial = new THREE.MeshPhongMaterial({ map: handleTexture });
-        var handle = new THREE.Mesh(handleGeometry, handleMaterial);
+       
+
+        var handle = new THREE.Group(); // Group to store all parts of the holder
+    
+
+        // Textures
+        var metalTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalH.jpg'); // Assuming the texture for metal
+    
+        // Function to create a cylindrical rod
+        function create_rod(radius, height, material) {
+            var geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
+            return new THREE.Mesh(geometry, material);
+        }
+    
+        // Materials
+        var metalMaterial = new THREE.MeshPhongMaterial({ map: metalTexture });
+    
+        // Dimensions
+        var rodRadius = 0.25;
+        var verticalRodHeight = 2;
+        var horizontalRodLength = 6;
+    
+    
+        
+    
+        // Creating the vertical rods
+        var leftVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
+        leftVerticalRod.position.set(-horizontalRodLength / 3, verticalRodHeight / 2 + 0.05 / 2, 0); // Adjusting height to start from base
+    
+        var rightVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
+        rightVerticalRod.position.set(horizontalRodLength / 3, verticalRodHeight / 2 + 0.05 / 2, 0); // Adjusting height to start from base
+    
+        // Creating the horizontal rod
+        var horizontalRodGeometry = new THREE.CylinderGeometry(rodRadius, rodRadius, horizontalRodLength, 32);
+        var horizontalRod = new THREE.Mesh(horizontalRodGeometry, metalMaterial);
+        horizontalRod.rotation.z = Math.PI / 2;
+        horizontalRod.position.set(0, verticalRodHeight + 0.05 / 2, 0); // Position at the top of vertical rods
+    
+       
+    
+        // Adding the components to the holder group
+       
+        handle.add(leftVerticalRod);
+        handle.add(rightVerticalRod);
+        handle.add(horizontalRod);
+         handle.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2); // Rotate the holder to be vertical
+        handle.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
+        
+        // handle.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
+         // Adjust the position as necessary
+         handle.scale.set(1/10, 1/10, 1/10);
+         
         return handle;
     }
 
@@ -504,7 +671,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // Adicionando a maçaneta à porta
     var handle = create_handle();
-    handle.position.set(0, lockerHeight / 2, lockerDepth / 2);
+    handle.position.set(0.35, wallThickness , 0);
     door.add(handle);
 
     // Adicionando as paredes ao grupo
@@ -564,6 +731,8 @@ function create_holder() {
     var horizontalRod = new THREE.Mesh(horizontalRodGeometry, metalMaterial);
     horizontalRod.rotation.z = Math.PI / 2;
     horizontalRod.position.set(0, verticalRodHeight + 0.05 / 2, 0); // Position at the top of vertical rods
+
+   
 
     // Adding the components to the holder group
     holder.add(base);
