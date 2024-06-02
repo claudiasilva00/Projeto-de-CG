@@ -61,6 +61,12 @@ scene.add(locker2);
      scene.add(spotlight);
      scene.add(spotlight.target);
 
+    //  // pointlight
+    //     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    //     pointLight.position.set(0, 116.5, 58);
+    //     scene.add(pointLight);
+
+
 
     var texture_dir = new THREE.TextureLoader().load('./Skybox/posx.jpg');      
     var texture_esq = new THREE.TextureLoader().load('./Skybox/negx.jpg');    
@@ -479,14 +485,34 @@ var holder = create_holder();
         sphere.scale.set(0.3, 0.3, 0.3);
 
         // light sphere 
+        // const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
+        // const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        // const light = new THREE.Mesh(lightGeometry, lightMaterial);
+        // light.position.y = -2.25; // Adjust position to be closer to the ceiling
+        // light.position.x = 0; // Adjust position to be closer to the ceiling
+        // light.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
+        // fan.add(light);
+        // light.scale.set(0.85, 0.85, 0.85);
+
         const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
-        const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const light = new THREE.Mesh(lightGeometry, lightMaterial);
-        light.position.y = -2.25; // Adjust position to be closer to the ceiling
-        light.position.x = 0; // Adjust position to be closer to the ceiling
-        light.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
-        fan.add(light);
-        light.scale.set(0.85, 0.85, 0.85);
+const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xF4C174 });
+const lightMesh = new THREE.Mesh(lightGeometry, lightMaterial);
+lightMesh.position.y = -2.25; // Adjust position to be closer to the ceiling
+lightMesh.position.x = 0; // Adjust position to be closer to the ceiling
+lightMesh.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
+fan.add(lightMesh);
+lightMesh.scale.set(0.85, 0.85, 0.85);
+
+// Create a PointLight
+const pointLight = new THREE.PointLight(0xF8C982, 5, 100); // color, intensity, distance orange color light  0xffa500
+pointLight.position.copy(lightMesh.position);
+fan.add(pointLight);
+
+pointLight.castShadow = true;
+pointLight.shadow.mapSize.width = 1024;
+pointLight.position.y = -8; // Adjust position to be closer to the ceiling
+
+
 
       
         
