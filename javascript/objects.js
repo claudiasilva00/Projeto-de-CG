@@ -8,17 +8,40 @@ export function createScene() {
     const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
    // Uso da função create_locker
 
+
+   // Criação do cacifo
 var locker1 = create_locker(-35, 13.85*6, 18);
 var locker2 = create_locker(-35, 13.85*6, 28);
 scene.add(locker1);
 scene.add(locker2);
 
+// const door1 = locker1.door;
+// const handle1 = locker1.handle;
+// const door2 = locker2.door;
+// const handle2 = locker2.handle;
 
- // Adicionar a ventoinha de teto à cena
+//var doorGroup1 = new THREE.Group();
+// doorGroup1.add(door1);
+// doorGroup1.add(handle1);
+
+
+// var doorGroup2 = new THREE.Group();
+// doorGroup2.add(door2);
+// doorGroup2.add(handle2);
+
+// applyDoorProperties(doorGroup1);
+// applyDoorProperties(doorGroup2);
+
+// scene.add(doorGroup1);
+// scene.add(doorGroup2);
+
+
+
+
 
  
 
-  // Usage example
+  // 
   
   const { fan, rotateFanBlades } = createFan();
   scene.add(fan);
@@ -100,6 +123,8 @@ scene.add(locker2);
 
     //adicionar o skybox à scene
     scene.add(skybox);
+
+
     //torre principal
     const objLoader = new OBJLoader();
     objLoader.load(
@@ -404,14 +429,24 @@ scene.add(locker2);
 
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.name = 'lamp';
                 }
             });
             object.scale.set(1, 1, 1) ;
-            object.position.set(0, 116,55);
+            object.position.set(0, 116,55); 
             object.rotation.y = Math.PI/2;
+
+
+    // Create a red point light and add it to the lamp object
+    // const redLight = new THREE.PointLight(0xff0000, 1000, 10); // Red color, intensity, distance
+    // redLight.position.set(-4, 116-115.81628674467821,55-57); // Position relative to the lamp object
+    // object.add(redLight);
+
+
             scene.add(object);
 
-        
+
+    
 
         },
         function(xhr) {
@@ -424,15 +459,19 @@ scene.add(locker2);
 
         
     );
-
+        // Create a PointLight
+   
+        
 /* OBJETOS COMPLEXOS*/
+
+
 var holder = create_holder();
     holder.position.set(-35, 17.75 * 6, 18); // Adjust the position as needed
     scene.add(holder);
 
 
  
-
+/*_____________ ventoinha  _____________*/
     function createFan() {
         const fan = new THREE.Group();
     
@@ -441,7 +480,7 @@ var holder = create_holder();
         var texture1 = new THREE.TextureLoader().load('./Objetos/textures/old-metalB.jpg');
         var texture2 = new THREE.TextureLoader().load('./Objetos/textures/old-wood.jpg');
         var texture3 = new THREE.TextureLoader().load('./Objetos/textures/old-metal.png');
-        var texture4 = new THREE.TextureLoader().load('./Objetos/textures/thread.jgp');
+        var texture4 = new THREE.TextureLoader().load('./Objetos/textures/thread.jpg');
 
 
         // Create the central motor   
@@ -484,44 +523,24 @@ var holder = create_holder();
         fan.add(sphere);
         sphere.scale.set(0.3, 0.3, 0.3);
 
-        // light sphere 
-        // const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
-        // const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        // const light = new THREE.Mesh(lightGeometry, lightMaterial);
-        // light.position.y = -2.25; // Adjust position to be closer to the ceiling
-        // light.position.x = 0; // Adjust position to be closer to the ceiling
-        // light.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
-        // fan.add(light);
-        // light.scale.set(0.85, 0.85, 0.85);
+        // pointlight - na ventoinha
+    const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
+    const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xF4C174 });
+    const lightMesh = new THREE.Mesh(lightGeometry, lightMaterial);
+    lightMesh.position.y = -2.25; // Adjust position to be closer to the ceiling
+    lightMesh.position.x = 0; // Adjust position to be closer to the ceiling
+    lightMesh.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
+    fan.add(lightMesh);
+    lightMesh.scale.set(0.85, 0.85, 0.85);
 
-        const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
-const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xF4C174 });
-const lightMesh = new THREE.Mesh(lightGeometry, lightMaterial);
-lightMesh.position.y = -2.25; // Adjust position to be closer to the ceiling
-lightMesh.position.x = 0; // Adjust position to be closer to the ceiling
-lightMesh.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
-fan.add(lightMesh);
-lightMesh.scale.set(0.85, 0.85, 0.85);
+    // Create a PointLight
+    const pointLight = new THREE.PointLight(0xF8C982, 5, 100); // color, intensity, distance orange color light  0xffa500
+    pointLight.position.copy(lightMesh.position);
+    fan.add(pointLight);
 
-// Create a PointLight
-const pointLight = new THREE.PointLight(0xF8C982, 5, 100); // color, intensity, distance orange color light  0xffa500
-pointLight.position.copy(lightMesh.position);
-fan.add(pointLight);
-
-pointLight.castShadow = true;
-pointLight.shadow.mapSize.width = 1024;
-pointLight.position.y = -8; // Adjust position to be closer to the ceiling
-
-
-
-      
-        
-
-
-
-
-
-
+    pointLight.castShadow = true;
+    pointLight.shadow.mapSize.width = 1024;
+    pointLight.position.y = -10; // Adjust position to be closer to the ceiling
 
 
     
@@ -559,6 +578,7 @@ pointLight.position.y = -8; // Adjust position to be closer to the ceiling
     }
     
   
+    /*_____________ cacifos _____________*/
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
@@ -573,8 +593,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
         return new THREE.Mesh(geometry, material);
     }
 
-    
-
+   
     // Função para criar a maçaneta
     function create_handle() {
        
@@ -693,7 +712,31 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
 
 
+    door.open = false;
     
+    door.interact = function() {
+        if (!this.open) {
+            new TWEEN.Tween(this.rotation)
+                .to({ y: Math.PI / -2 }, 1000)
+                .start()
+                .onStart(() => {
+                    console.log('Door opening');
+                })
+                .onComplete(() => {
+                    this.open = true;
+                });
+        } else {
+            new TWEEN.Tween(this.rotation)
+                .to({ y: 0 }, 1000)
+                .start()
+                .onStart(() => {
+                    console.log('Door closing');
+                })
+                .onComplete(() => {
+                    this.open = false;
+                });
+        }
+    };
 
     // Adicionando a maçaneta à porta
     var handle = create_handle();
@@ -710,6 +753,8 @@ function create_locker(x, y, z, isDoorOpen = false) {
     locker.add(shoeWall);
     locker.add(door);
 
+
+    
     // Posição do cacifo
     locker.position.set(x, y, z);
     locker.scale.set(8, 12, 8);
@@ -772,6 +817,8 @@ function create_holder() {
      // Adjust the position as necessary
      holder.scale.set(3, 2, 3);
     return holder;
+
+
 }
     
     const OrthographicSphere = create_camera_sphere();
