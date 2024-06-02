@@ -433,12 +433,24 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // adicionar uma bobradiça à porta
     var hinge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
-    hinge.position.set(-lockerWidth / 2.2, lockerHeight / 3, lockerDepth / 40);
+    hinge.position.set(-lockerWidth / 2.1, lockerHeight / 3, lockerDepth / 40);
     door.add(hinge);
     //duplicate hinge 
     var hinge2 = hinge.clone();
-    hinge2.position.set(-lockerWidth / 2.2, lockerHeight / 5, lockerDepth / 40);
+    hinge2.position.set(-lockerWidth / 2.1, lockerHeight / 5, lockerDepth / 40);
     door.add(hinge2);
+
+
+    // infireiores
+
+    var hinge3 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
+    hinge3.position.set(-lockerWidth / 2.1, - lockerHeight / 3, lockerDepth / 40);
+    door.add(hinge3);
+    //duplicate hinge 
+    var hinge4 = hinge.clone();
+    hinge4.position.set(-lockerWidth / 2.1, -lockerHeight / 5, lockerDepth / 40);
+    door.add(hinge4);
+
 
 
     
