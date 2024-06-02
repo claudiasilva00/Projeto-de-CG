@@ -10,8 +10,8 @@ export function createScene() {
 
 
    // Criação do cacifo
-var locker1 = create_locker(-35, 13.85*6, 18);
-var locker2 = create_locker(-35, 13.85*6, 28);
+var locker1 = create_locker(-33, 13.85*6, 18);
+var locker2 = create_locker(-33, 13.85*6, 28);
 scene.add(locker1);
 scene.add(locker2);
 
@@ -462,6 +462,37 @@ scene.add(locker2);
         
     );
         
+    
+/*________________________dentro dos cacifos_________________________*/
+objLoader.load(
+    './Objetos/folded_clothes.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // textura
+                const material = new THREE.MeshStandardMaterial({
+                    map: new THREE.TextureLoader().load('./Objetos/textures/blue-fabric.jpeg'),
+                    side: THREE.DoubleSide,
+                    emissive: new THREE.Color(0x404040),
+                    emissiveIntensity: 0.5
+                });
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.position.y = 0; 
+        object.position.set(-33, 16.25*6, 22);
+        object.scale.set(0.2,0.2,0.2);  
+        scene.add(object);
+
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
 
    // load ocean
    const textureLoader = new THREE.TextureLoader();
@@ -508,6 +539,9 @@ scene.add(locker2);
            console.log('An error happened: ' + error);
        }
    );
+
+
+
   /* _________________________ BARCOS ______________________ */
 
 
@@ -994,7 +1028,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
     // Dimensões do cacifo
     var lockerWidth = 1;
     var lockerHeight = 2;
-    var lockerDepth = 0.5;
+    var lockerDepth = 0.75;
 
     // Criando as paredes do cacifo
     var leftWall = create_wall(wallThickness, lockerHeight, lockerDepth, wallMaterial);
@@ -1020,7 +1054,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // Criando a porta do cacifo
     var door = create_wall(lockerWidth - wallThickness , lockerHeight, doorThickness, doorMaterial);
-    door.position.set(0, lockerHeight / 2, lockerDepth-0.25 );
+    door.position.set(0, lockerHeight / 2, lockerDepth-0.35 );
 
     // adicionar uma bobradiça à porta
     var hinge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
