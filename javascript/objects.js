@@ -383,30 +383,81 @@ var holder = create_holder();
     function createFan() {
         const fan = new THREE.Group();
     
-        // Create the central motor
+        // Materiais
+        var texture = new THREE.TextureLoader().load('./Objetos/textures/old-metalH.jpg');
+        var texture1 = new THREE.TextureLoader().load('./Objetos/textures/old-metalB.jpg');
+        var texture2 = new THREE.TextureLoader().load('./Objetos/textures/old-wood.jpg');
+        var texture3 = new THREE.TextureLoader().load('./Objetos/textures/old-metal.png');
+        var texture4 = new THREE.TextureLoader().load('./Objetos/textures/thread.jgp');
+
+
+        // Create the central motor   
         const motorGeometry = new THREE.CylinderGeometry(0.75, 0.75, 3, 40);
+        //var motorMaterial = new THREE.MeshStandardMaterial({ map:texture});
         const motorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
         const motor = new THREE.Mesh(motorGeometry, motorMaterial);
         motor.position.y = -1; // Adjust position to be closer to the ceiling
         fan.add(motor);
 
         const motor2Geometry = new THREE.CylinderGeometry(1, 1, 0.2, 40);
-        const motor2Material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // black  color 0x000000
+        //var motor2Material = new THREE.MeshStandardMaterial({ map:texture1});
+        const motor2Material = new THREE.MeshStandardMaterial({ color: 0x000000 });
         const motor2 = new THREE.Mesh(motor2Geometry, motor2Material);
         motor2.position.y = -2.25; // Adjust position to be closer to the ceiling
         fan.add(motor2);
 
-        
-
         const motor3Geometry = new THREE.CylinderGeometry(1, 1, 0.2, 40);
-        const motor3Material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // black  color 0x000000
+        //var motor3Material = new THREE.MeshStandardMaterial({ map:texture1});
+        const motor3Material = new THREE.MeshStandardMaterial({ color: 0x000000 });
         const motor3 = new THREE.Mesh(motor3Geometry, motor3Material);
         motor3.position.y = -1.75; // Adjust position to be closer to the ceiling
         fan.add(motor3);
+
+        //create the turning on/off wire
+        const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 5, 40);
+        var wireMaterial = new THREE.MeshStandardMaterial({ map:texture1});
+        const wire = new THREE.Mesh(wireGeometry, wireMaterial);
+        wire.position.y = -4.75; // Adjust position to be closer to the ceiling
+        wire.position.x = 0.85; // Adjust position to be closer to the ceiling
+        fan.add(wire);
+        wire.scale.set(1, 1, 1);
+
+        //sphere to hold the wire
+        const sphereGeometry = new THREE.SphereGeometry(0.5, 40, 40);
+        const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.y = -7; // Adjust position to be closer to the ceiling
+        sphere.position.x = 0.8; // Adjust position to be closer to the ceiling
+        fan.add(sphere);
+        sphere.scale.set(0.3, 0.3, 0.3);
+
+        // light sphere 
+        const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
+        const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const light = new THREE.Mesh(lightGeometry, lightMaterial);
+        light.position.y = -2.25; // Adjust position to be closer to the ceiling
+        light.position.x = 0; // Adjust position to be closer to the ceiling
+        light.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
+        fan.add(light);
+        light.scale.set(0.85, 0.85, 0.85);
+
+      
+        
+
+
+
+
+
+
+
+
     
         // Create the blades
         const bladeGeometry = new THREE.BoxGeometry(12, 0.2, 1.2);
-        const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+
+        //var bladeMaterial = new THREE.MeshStandardMaterial({ map:texture2});
+        const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xDDDDDD });
+      
     
         // Function to create and position blades
         function createBlade(rotationAngle) {
