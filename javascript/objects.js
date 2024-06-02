@@ -1,6 +1,41 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'OBJLoader';
 let renderer, scene, camera, ocean;
+
+function animateWings(leftWing, rightWing) {
+    const wingRotation = { angle: 0 };
+
+    new TWEEN.Tween(wingRotation)
+        .to({ angle: Math.PI / 4 }, 1000)
+        .onUpdate(() => {
+            leftWing.rotation.z = wingRotation.angle;
+            rightWing.rotation.z = -wingRotation.angle;
+        })
+        .repeat(Infinity)
+        .yoyo(true)
+        .start();
+}
+
+function animateBird(object, pathPoints, duration) {
+    const curve = new THREE.CatmullRomCurve3(pathPoints);
+    curve.closed = true; // Fechando o caminho para garantir que comece e termine no mesmo ponto
+    const animation = { t: 0 };
+
+    new TWEEN.Tween(animation)
+        .to({ t: 1 }, duration)
+        .onUpdate(() => {
+            const position = curve.getPoint(animation.t);
+            object.position.copy(position);
+
+            const tangent = curve.getTangent(animation.t);
+            object.lookAt(position.clone().add(tangent));
+        })
+        .repeat(Infinity)
+        .start();
+}
+
+
+
 export function createScene() {
     // Criação da scene
     const scene = new THREE.Scene();
@@ -461,6 +496,70 @@ scene.add(locker2);
 
         
     );
+/*________________________passaro_________________________*/
+
+
+objLoader.load(
+    './Objetos/eagle.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // textura
+                const material = new THREE.MeshStandardMaterial({
+                    map: new THREE.TextureLoader().load('./Objetos/textures/base_eagle.png'),
+                    side: THREE.DoubleSide,
+                    emissive: new THREE.Color(0x404040),
+                    emissiveIntensity: 0.5
+                });
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.position.y = 0; 
+        object.position.set(31, 108, 170);
+        object.scale.set(0.1,0.1,0.1);  
+        scene.add(object);
+      
+        const centerX = 60;
+        const centerY = 100;
+        const centerZ = 200;
+        const radius = 50; // raio do círculo
+        const heightVariation = 20; // variação na altura para o voo
+    
+        object.position.set(centerX, centerY, centerZ); // Posição inicial do pássaro
+        object.scale.set(0.1, 0.1, 0.1);
+    
+        scene.add(object);
+    
+        // Referenciando as asas usando os nomes dos ossos
+        const leftWing = object.getObjectByName('Bone.001_L');
+        const rightWing = object.getObjectByName('Bone.001_R');
+        if (leftWing && rightWing) {
+            animateWings(leftWing, rightWing);
+        }
+    
+        // Definindo pontos do caminho fechado
+        const pathPoints = [
+            new THREE.Vector3(centerX, centerY, centerZ),
+            new THREE.Vector3(centerX + radius, centerY + heightVariation, centerZ - radius),
+            new THREE.Vector3(centerX, centerY + 2 * heightVariation, centerZ - 2 * radius),
+            new THREE.Vector3(centerX - radius, centerY + heightVariation, centerZ - radius),
+            new THREE.Vector3(centerX, centerY, centerZ)
+        ];
+    
+        const duration = 10000; // duração em milissegundos
+        animateBird(object, pathPoints, duration);
+  
+
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
         
     
 /*________________________dentro dos cacifos_________________________*/
@@ -481,8 +580,8 @@ objLoader.load(
             }
         });
         object.position.y = 0; 
-        object.position.set(-33, 16.25*6, 22);
-        object.scale.set(0.2,0.2,0.2);  
+        object.position.set(-33, 16.25*6, 21);
+        object.scale.set(0.15,0.15,0.15);  
         scene.add(object);
 
     },
