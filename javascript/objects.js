@@ -8,10 +8,15 @@ export function createScene() {
     const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
    // Uso da função create_locker
 
-var locker1 = create_locker(0, 14.05*6, 2);
-var locker2 = create_locker(4, 14.05*6, 2);
+var locker1 = create_locker(-35, 13.85*6, 18);
+var locker2 = create_locker(-35, 13.85*6, 28);
 scene.add(locker1);
 scene.add(locker2);
+
+
+
+
+
 
 
 
@@ -361,17 +366,30 @@ scene.add(locker2);
     );
 
 /* OBJETOS COMPLEXOS*/
+var holder = create_holder();
+    holder.position.set(-35, 17.75 * 6, 18); // Adjust the position as needed
+    scene.add(holder);
+
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
     // Texturas
-    var wallTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/plastic_bump_1.jpg');
+    var wallTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metal.jpg');
     var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg');
+    var handleTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg'); // Textura da maçaneta
 
     // Função para criar uma parede
     function create_wall(width, height, depth, material) {
         var geometry = new THREE.BoxGeometry(width, height, depth);
         return new THREE.Mesh(geometry, material);
+    }
+
+    // Função para criar uma maçaneta
+    function create_handle() {
+        var handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 32);
+        var handleMaterial = new THREE.MeshPhongMaterial({ map: handleTexture });
+        var handle = new THREE.Mesh(handleGeometry, handleMaterial);
+        return handle;
     }
 
     // Materiais
@@ -384,8 +402,8 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // Dimensões do cacifo
     var lockerWidth = 1;
-    var lockerHeight = 4;
-    var lockerDepth = 1;
+    var lockerHeight = 2;
+    var lockerDepth = 0.5;
 
     // Criando as paredes do cacifo
     var leftWall = create_wall(wallThickness, lockerHeight, lockerDepth, wallMaterial);
@@ -400,12 +418,35 @@ function create_locker(x, y, z, isDoorOpen = false) {
     var bottomWall = create_wall(lockerWidth, wallThickness, lockerDepth, wallMaterial);
     bottomWall.position.set(0, wallThickness / 2, 0);
 
+    var shoeWall = create_wall(lockerWidth, wallThickness, lockerDepth, wallMaterial);
+    shoeWall.position.set(0, wallThickness / 0.2, 0);
+
+    var midWall = create_wall(lockerWidth, wallThickness, lockerDepth, wallMaterial);
+    midWall.position.set(0, wallThickness / 0.05, 0);
+
     var backWall = create_wall(lockerWidth, lockerHeight, wallThickness, wallMaterial);
     backWall.position.set(0, lockerHeight / 2, -lockerDepth / 2 + wallThickness / 2);
 
     // Criando a porta do cacifo
-    var door = create_wall(lockerWidth - wallThickness, lockerHeight, doorThickness, doorMaterial);
-    door.position.set(0, lockerHeight / 2, lockerDepth / 2 - doorThickness / 2);
+    var door = create_wall(lockerWidth - wallThickness , lockerHeight, doorThickness, doorMaterial);
+    door.position.set(0, lockerHeight / 2, lockerDepth-0.25 );
+
+    // adicionar uma bobradiça à porta
+    var hinge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
+    hinge.position.set(-lockerWidth / 2.2, lockerHeight / 3, lockerDepth / 40);
+    door.add(hinge);
+    //duplicate hinge 
+    var hinge2 = hinge.clone();
+    hinge2.position.set(-lockerWidth / 2.2, lockerHeight / 5, lockerDepth / 40);
+    door.add(hinge2);
+
+
+    
+
+    // Adicionando a maçaneta à porta
+    var handle = create_handle();
+    handle.position.set(0, lockerHeight / 2, lockerDepth / 2);
+    door.add(handle);
 
     // Adicionando as paredes ao grupo
     locker.add(leftWall);
@@ -413,26 +454,71 @@ function create_locker(x, y, z, isDoorOpen = false) {
     locker.add(topWall);
     locker.add(bottomWall);
     locker.add(backWall);
-
-    // Porta aberta
-    if (isDoorOpen) {
-        // Criar um pivot para a porta
-        var doorPivot = new THREE.Object3D();
-        doorPivot.position.set(-lockerWidth / 2 + wallThickness / 2, lockerHeight / 2, lockerDepth / 2 - doorThickness / 2);
-        door.position.set(lockerWidth / 2 - wallThickness, 0, 0);
-        doorPivot.add(door);
-        locker.add(doorPivot);
-        doorPivot.rotation.y = Math.PI / 2;
-    } else {
-        locker.add(door);
-    }
+    locker.add(midWall);
+    locker.add(shoeWall);
+    locker.add(door);
 
     // Posição do cacifo
     locker.position.set(x, y, z);
+    locker.scale.set(8, 12, 8);
+    locker.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2);
 
     return locker;
+}
+function create_holder() {
+    var holder = new THREE.Group(); // Group to store all parts of the holder
+    
 
+    // Textures
+    var metalTexture = new THREE.TextureLoader().load('./Objetos/Textures/lamp/brushed_metal 2.jpg'); // Assuming the texture for metal
+
+    // Function to create a cylindrical rod
+    function create_rod(radius, height, material) {
+        var geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
+        return new THREE.Mesh(geometry, material);
+    }
+
+    // Materials
+    var metalMaterial = new THREE.MeshPhongMaterial({ map: metalTexture });
+
+    // Dimensions
+    var rodRadius = 0.05;
+    var verticalRodHeight = 1.5;
+    var horizontalRodLength = 1.2;
+
+    // Creating the base
+    var baseGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.05, 32);
+    var baseMaterial = new THREE.MeshPhongMaterial({ map: metalTexture });
+    var base = new THREE.Mesh(baseGeometry, baseMaterial);
+    base.position.set(0, 0.025 / 2, 0); // Position at the bottom
+    
+
+    // Creating the vertical rods
+    var leftVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
+    leftVerticalRod.position.set(-horizontalRodLength / 2, verticalRodHeight / 2 + 0.05 / 2, 0); // Adjusting height to start from base
+
+    var rightVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
+    rightVerticalRod.position.set(horizontalRodLength / 2, verticalRodHeight / 2 + 0.05 / 2, 0); // Adjusting height to start from base
+
+    // Creating the horizontal rod
+    var horizontalRodGeometry = new THREE.CylinderGeometry(rodRadius, rodRadius, horizontalRodLength, 32);
+    var horizontalRod = new THREE.Mesh(horizontalRodGeometry, metalMaterial);
+    horizontalRod.rotation.z = Math.PI / 2;
+    horizontalRod.position.set(0, verticalRodHeight + 0.05 / 2, 0); // Position at the top of vertical rods
+
+    // Adding the components to the holder group
+    holder.add(base);
+    holder.add(leftVerticalRod);
+    holder.add(rightVerticalRod);
+    holder.add(horizontalRod);
+    holder.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2); // Rotate the holder to be vertical
+    holder.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
+    
+    holder.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
+     // Adjust the position as necessary
+     holder.scale.set(3, 2, 3);
+    return holder;
 }
 
-    return scene;
+return scene;
 }
