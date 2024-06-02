@@ -136,6 +136,7 @@ function get_camara_direction() {
 function animate() {
     requestAnimationFrame(animate);
     TWEEN.update();
+  
 }
 
 

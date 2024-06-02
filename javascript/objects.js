@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'OBJLoader';
-
+let renderer, scene, camera, ocean;
 export function createScene() {
     // Criação da scene
     const scene = new THREE.Scene();
@@ -14,6 +14,8 @@ var locker1 = create_locker(-35, 13.85*6, 18);
 var locker2 = create_locker(-35, 13.85*6, 28);
 scene.add(locker1);
 scene.add(locker2);
+
+
 
 // const door1 = locker1.door;
 // const handle1 = locker1.handle;
@@ -459,8 +461,338 @@ scene.add(locker2);
 
         
     );
-        // Create a PointLight
-   
+        
+
+   // load ocean
+   const textureLoader = new THREE.TextureLoader();
+   const diffuseTexture = textureLoader.load('./Objetos/Textures/ocean/txt_001_diff.png');
+   const bumpTexture = textureLoader.load('./Objetos/Textures/ocean/txt_002_bump.png');
+
+   objLoader.load(
+       './objetos/ocean.obj',
+       function (object) {
+           object.traverse(function (child) {
+               if (child.isMesh) {
+                   const material = new THREE.MeshStandardMaterial({
+                       map: diffuseTexture,
+                       bumpMap: bumpTexture,
+                       bumpScale: 0.05,
+                       side: THREE.DoubleSide
+                   });
+                   child.material = material;
+                   child.material.needsUpdate = true;
+               }
+           });
+           object.position.set(-300,-300, -300); // Adjust position as necessary
+           object.scale.set(250, 250, 250); // Adjust scale as necessary
+           scene.add(object);
+
+        const grid1 = new THREE.GridHelper(10, 10);
+        grid1.scale.set(0.1, 0.1, 0.1); // Adjust the scale of the first grid
+        grid1.position.set(-0.75, 0.1, 0); // Adjust the position of the first grid
+        grid1.visible = true; // Ensure the grid is visible
+        object.add(grid1); // Add grid to the ocean object to move with it
+
+        // Create the second grid
+        const grid2 = new THREE.GridHelper(10, 10);
+        grid2.scale.set(0.1, 0.1, 0.1);
+        grid2.position.set(0.75, 0.1, 0);// Adjust the position of the second grid
+        grid2.visible = true; // Ensure the grid is visible
+        object.add(grid2); // Add grid to the ocean object to move with it
+      
+       },
+       function (xhr) {
+           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+       },
+       function (error) {
+           console.log('An error happened: ' + error);
+       }
+   );
+  /* _________________________ BARCOS ______________________ */
+
+
+    // Load the first boat
+
+    objLoader.load(
+        './Objetos/barco1.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-340);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+
+    objLoader.load(
+        './Objetos/barco1.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-320);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+    objLoader.load(
+        './Objetos/barco2.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-280);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+    objLoader.load(
+        './Objetos/barco2.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-260);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+    objLoader.load(
+        './Objetos/barco3.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-240);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+    objLoader.load(
+        './Objetos/barco3.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-220);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+    objLoader.load(
+        './Objetos/barco4.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-180);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+/*_______________MINA________________________*/
+  // mesa
+  objLoader.load(
+    './Objetos/mine.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // Apply textures
+                const baseColorMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Base_Color.png');
+                const metallicMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Metallic.png');
+                const roughnessMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Roughness.png');
+
+                const material = new THREE.MeshStandardMaterial({
+                    map: baseColorMap,
+                    metalnessMap: metallicMap,
+                    roughnessMap: roughnessMap,
+                    side: THREE.DoubleSide
+                });
+
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.scale.set(450, 450, 450);
+        object.position.set(-340,-350,-400);
+        scene.add(object);
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
+objLoader.load(
+    './Objetos/mine.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // Apply textures
+                const baseColorMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Base_Color.png');
+                const metallicMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Metallic.png');
+                const roughnessMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Roughness.png');
+
+                const material = new THREE.MeshStandardMaterial({
+                    map: baseColorMap,
+                    metalnessMap: metallicMap,
+                    roughnessMap: roughnessMap,
+                    side: THREE.DoubleSide
+                });
+
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.scale.set(450, 450, 450);
+        object.position.set(-300,-350,-400);
+        scene.add(object);
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
+
+
+
+
         
 /* OBJETOS COMPLEXOS*/
 
@@ -834,4 +1166,27 @@ function create_camera_sphere() {
     // Add the cube to your scene
     var geometry = new THREE.SphereGeometry(5, 32, 32);
     return new THREE.Mesh(geometry, materialTextura);
+}
+
+
+
+
+
+
+export function animate(renderer, camera) {
+    requestAnimationFrame(() => animate(renderer, camera));
+
+    // Update TWEEN animations
+    TWEEN.update();
+
+    // Render the scene
+    renderer.render(scene, camera);
+}
+
+export function start(renderer, camera) {
+    scene = createScene();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    animate(renderer, camera);
 }
