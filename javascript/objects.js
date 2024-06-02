@@ -22,8 +22,8 @@ scene.add(locker2);
   
   const { fan, rotateFanBlades } = createFan();
   scene.add(fan);
-fan.scale.set(2, 2, 2);
- fan.position.set(0, 19.55*6, -4); // Ajustar a posição conforme necessário
+  fan.scale.set(2, 2, 2);
+  fan.position.set(0, 19.9*6, 8); // Ajustar a posição conforme necessário
 
 
 
@@ -384,20 +384,34 @@ var holder = create_holder();
         const fan = new THREE.Group();
     
         // Create the central motor
-        const motorGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);
+        const motorGeometry = new THREE.CylinderGeometry(0.75, 0.75, 3, 40);
         const motorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
         const motor = new THREE.Mesh(motorGeometry, motorMaterial);
         motor.position.y = -1; // Adjust position to be closer to the ceiling
         fan.add(motor);
+
+        const motor2Geometry = new THREE.CylinderGeometry(1, 1, 0.2, 40);
+        const motor2Material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // black  color 0x000000
+        const motor2 = new THREE.Mesh(motor2Geometry, motor2Material);
+        motor2.position.y = -2.25; // Adjust position to be closer to the ceiling
+        fan.add(motor2);
+
+        
+
+        const motor3Geometry = new THREE.CylinderGeometry(1, 1, 0.2, 40);
+        const motor3Material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // black  color 0x000000
+        const motor3 = new THREE.Mesh(motor3Geometry, motor3Material);
+        motor3.position.y = -1.75; // Adjust position to be closer to the ceiling
+        fan.add(motor3);
     
         // Create the blades
-        const bladeGeometry = new THREE.BoxGeometry(10, 0.2, 2);
+        const bladeGeometry = new THREE.BoxGeometry(12, 0.2, 1.2);
         const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
     
         // Function to create and position blades
         function createBlade(rotationAngle) {
             const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
-            blade.position.set(5, 0, 0); // Position blade end at rotation axis
+            blade.position.set(0, -2, 0); // Position blade end at rotation axis
             blade.rotation.y = rotationAngle; // Rotate blade to the correct angle
             return blade;
         }
@@ -421,14 +435,6 @@ var holder = create_holder();
     }
     
   
-    
-  
-  
-    
-   
-    
-
-
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 

@@ -79,6 +79,8 @@ function update_raycaster() {
 function loop() {
     update_raycaster();
     update_movement();
+
+    
     
     // Adjust the camera position by a fraction of the difference
     camaraPerspetiva.position.x +=  (targetPosition.x - camaraPerspetiva.position.x) * smoothFactor;
