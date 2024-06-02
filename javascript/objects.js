@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'OBJLoader';
 let renderer, scene, camera, ocean;
 
+
 function animateWings(leftWing, rightWing) {
     const wingRotation = { angle: 0 };
 
@@ -33,7 +34,6 @@ function animateBird(object, pathPoints, duration) {
         .repeat(Infinity)
         .start();
 }
-
 
 
 export function createScene() {
