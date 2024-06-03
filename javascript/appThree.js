@@ -44,6 +44,8 @@ document.addEventListener('click', function() {
 
 document.addEventListener('keydown', function(event) {
     keyState[event.key] = true;
+    console.log(camaraPerspetiva.position);
+
     if (event.key === 'c') {change_camera();}
 }, false);
 
@@ -137,6 +139,7 @@ function get_camara_direction() {
 function animate() {
     requestAnimationFrame(animate);
     TWEEN.update();
+  
 }
 
 

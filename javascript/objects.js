@@ -1,5 +1,40 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'OBJLoader';
+let renderer, scene, camera, ocean;
+
+
+function animateWings(leftWing, rightWing) {
+    const wingRotation = { angle: 0 };
+
+    new TWEEN.Tween(wingRotation)
+        .to({ angle: Math.PI / 4 }, 1000)
+        .onUpdate(() => {
+            leftWing.rotation.z = wingRotation.angle;
+            rightWing.rotation.z = -wingRotation.angle;
+        })
+        .repeat(Infinity)
+        .yoyo(true)
+        .start();
+}
+
+function animateBird(object, pathPoints, duration) {
+    const curve = new THREE.CatmullRomCurve3(pathPoints);
+    curve.closed = true; // Fechando o caminho para garantir que comece e termine no mesmo ponto
+    const animation = { t: 0 };
+
+    new TWEEN.Tween(animation)
+        .to({ t: 1 }, duration)
+        .onUpdate(() => {
+            const position = curve.getPoint(animation.t);
+            object.position.copy(position);
+
+            const tangent = curve.getTangent(animation.t);
+            object.lookAt(position.clone().add(tangent));
+        })
+        .repeat(Infinity)
+        .start();
+}
+
 
 export function createScene() {
     // Criação da scene
@@ -8,17 +43,42 @@ export function createScene() {
     const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
    // Uso da função create_locker
 
-var locker1 = create_locker(-35, 13.85*6, 18);
-var locker2 = create_locker(-35, 13.85*6, 28);
+
+   // Criação do cacifo
+var locker1 = create_locker(-33, 13.85*6, 18);
+var locker2 = create_locker(-33, 13.85*6, 28);
 scene.add(locker1);
 scene.add(locker2);
 
 
- // Adicionar a ventoinha de teto à cena
+
+// const door1 = locker1.door;
+// const handle1 = locker1.handle;
+// const door2 = locker2.door;
+// const handle2 = locker2.handle;
+
+//var doorGroup1 = new THREE.Group();
+// doorGroup1.add(door1);
+// doorGroup1.add(handle1);
+
+
+// var doorGroup2 = new THREE.Group();
+// doorGroup2.add(door2);
+// doorGroup2.add(handle2);
+
+// applyDoorProperties(doorGroup1);
+// applyDoorProperties(doorGroup2);
+
+// scene.add(doorGroup1);
+// scene.add(doorGroup2);
+
+
+
+
 
  
 
-  // Usage example
+  // 
   
   const { fan, rotateFanBlades } = createFan();
   scene.add(fan);
@@ -60,6 +120,12 @@ scene.add(locker2);
      spotlight.castShadow = true;
      scene.add(spotlight);
      scene.add(spotlight.target);
+
+    //  // pointlight
+    //     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    //     pointLight.position.set(0, 116.5, 58);
+    //     scene.add(pointLight);
+
 
 
     var texture_dir = new THREE.TextureLoader().load('./Skybox/posx.jpg');      
@@ -399,14 +465,24 @@ scene.add(locker2);
 
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.name = 'lamp';
                 }
             });
             object.scale.set(1, 1, 1) ;
-            object.position.set(0, 116,55);
+            object.position.set(0, 116,55); 
             object.rotation.y = Math.PI/2;
+
+
+    // Create a red point light and add it to the lamp object
+    // const redLight = new THREE.PointLight(0xff0000, 1000, 10); // Red color, intensity, distance
+    // redLight.position.set(-4, 116-115.81628674467821,55-57); // Position relative to the lamp object
+    // object.add(redLight);
+
+
             scene.add(object);
 
-        
+
+    
 
         },
         function(xhr) {
@@ -419,15 +495,447 @@ scene.add(locker2);
 
         
     );
+/*________________________passaro_________________________*/
 
+
+objLoader.load(
+    './Objetos/eagle.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // textura
+                const material = new THREE.MeshStandardMaterial({
+                    map: new THREE.TextureLoader().load('./Objetos/textures/base_eagle.png'),
+                    side: THREE.DoubleSide,
+                    emissive: new THREE.Color(0x404040),
+                    emissiveIntensity: 0.5
+                });
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.position.y = 0; 
+        object.position.set(31, 108, 170);
+        object.scale.set(0.1,0.1,0.1);  
+        scene.add(object);
+      
+        const centerX = 60;
+        const centerY = 100;
+        const centerZ = 200;
+        const radius = 50; // raio do círculo
+        const heightVariation = 20; // variação na altura para o voo
+    
+        object.position.set(centerX, centerY, centerZ); // Posição inicial do pássaro
+        object.scale.set(0.1, 0.1, 0.1);
+    
+        scene.add(object);
+    
+        // Referenciando as asas usando os nomes dos ossos
+        const leftWing = object.getObjectByName('Bone.001_L');
+        const rightWing = object.getObjectByName('Bone.001_R');
+        if (leftWing && rightWing) {
+            animateWings(leftWing, rightWing);
+        }
+    
+        // Definindo pontos do caminho fechado
+        const pathPoints = [
+            new THREE.Vector3(centerX, centerY, centerZ),
+            new THREE.Vector3(centerX + radius, centerY + heightVariation, centerZ - radius),
+            new THREE.Vector3(centerX, centerY + 2 * heightVariation, centerZ - 2 * radius),
+            new THREE.Vector3(centerX - radius, centerY + heightVariation, centerZ - radius),
+            new THREE.Vector3(centerX, centerY, centerZ)
+        ];
+    
+        const duration = 10000; // duração em milissegundos
+        animateBird(object, pathPoints, duration);
+  
+
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
+        
+    
+/*________________________dentro dos cacifos_________________________*/
+objLoader.load(
+    './Objetos/folded_clothes.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // textura
+                const material = new THREE.MeshStandardMaterial({
+                    map: new THREE.TextureLoader().load('./Objetos/textures/blue-fabric.jpeg'),
+                    side: THREE.DoubleSide,
+                    emissive: new THREE.Color(0x404040),
+                    emissiveIntensity: 0.5
+                });
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.position.y = 0; 
+        object.position.set(-33, 16.25*6, 21);
+        object.scale.set(0.15,0.15,0.15);  
+        scene.add(object);
+
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
+   // load ocean
+   const textureLoader = new THREE.TextureLoader();
+   const diffuseTexture = textureLoader.load('./Objetos/Textures/ocean/txt_001_diff.png');
+   const bumpTexture = textureLoader.load('./Objetos/Textures/ocean/txt_002_bump.png');
+
+   objLoader.load(
+       './objetos/ocean.obj',
+       function (object) {
+           object.traverse(function (child) {
+               if (child.isMesh) {
+                   const material = new THREE.MeshStandardMaterial({
+                       map: diffuseTexture,
+                       bumpMap: bumpTexture,
+                       bumpScale: 0.05,
+                       side: THREE.DoubleSide
+                   });
+                   child.material = material;
+                   child.material.needsUpdate = true;
+               }
+           });
+           object.position.set(-300,-300, -300); // Adjust position as necessary
+           object.scale.set(250, 250, 250); // Adjust scale as necessary
+           scene.add(object);
+
+        const grid1 = new THREE.GridHelper(10, 10);
+        grid1.scale.set(0.1, 0.1, 0.1); // Adjust the scale of the first grid
+        grid1.position.set(-0.75, 0.1, 0); // Adjust the position of the first grid
+        grid1.visible = true; // Ensure the grid is visible
+        object.add(grid1); // Add grid to the ocean object to move with it
+
+        // Create the second grid
+        const grid2 = new THREE.GridHelper(10, 10);
+        grid2.scale.set(0.1, 0.1, 0.1);
+        grid2.position.set(0.75, 0.1, 0);// Adjust the position of the second grid
+        grid2.visible = true; // Ensure the grid is visible
+        object.add(grid2); // Add grid to the ocean object to move with it
+      
+       },
+       function (xhr) {
+           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+       },
+       function (error) {
+           console.log('An error happened: ' + error);
+       }
+   );
+
+
+
+  /* _________________________ BARCOS ______________________ */
+
+
+    // Load the first boat
+
+    objLoader.load(
+        './Objetos/barco1.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-340);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+
+    objLoader.load(
+        './Objetos/barco1.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-320);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+    objLoader.load(
+        './Objetos/barco2.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-280);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+    objLoader.load(
+        './Objetos/barco2.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-260);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+    objLoader.load(
+        './Objetos/barco3.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-240);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+    objLoader.load(
+        './Objetos/barco3.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-220);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+
+    objLoader.load(
+        './Objetos/barco4.obj', 
+        function(object) {
+            object.traverse(function(child) {
+                if (child.isMesh) {
+                    // textura
+                    const material = new THREE.MeshStandardMaterial({
+                        map: new THREE.TextureLoader().load('./Objetos/textures/old-metal.png'),
+                        side: THREE.DoubleSide,
+                        emissive: new THREE.Color(0x404040),
+                        emissiveIntensity: 0.5
+                    });
+                    child.material = material;
+                    child.material.needsUpdate = true;
+                }
+            });
+            object.position.y = 0; 
+            object.position.set(-340,-290,-180);
+            object.scale.set(0.3,0.3,0.3);  
+            scene.add(object);
+
+        },
+        function(xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function(error) {
+            console.log('An error happened: ' + error);
+        }
+    );
+/*_______________MINA________________________*/
+  // mesa
+  objLoader.load(
+    './Objetos/mine.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // Apply textures
+                const baseColorMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Base_Color.png');
+                const metallicMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Metallic.png');
+                const roughnessMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Roughness.png');
+
+                const material = new THREE.MeshStandardMaterial({
+                    map: baseColorMap,
+                    metalnessMap: metallicMap,
+                    roughnessMap: roughnessMap,
+                    side: THREE.DoubleSide
+                });
+
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.scale.set(450, 450, 450);
+        object.position.set(-340,-350,-400);
+        scene.add(object);
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
+objLoader.load(
+    './Objetos/mine.obj', 
+    function(object) {
+        object.traverse(function(child) {
+            if (child.isMesh) {
+                // Apply textures
+                const baseColorMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Base_Color.png');
+                const metallicMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Metallic.png');
+                const roughnessMap = new THREE.TextureLoader().load('./Objetos/Textures/mine/lambert1_Roughness.png');
+
+                const material = new THREE.MeshStandardMaterial({
+                    map: baseColorMap,
+                    metalnessMap: metallicMap,
+                    roughnessMap: roughnessMap,
+                    side: THREE.DoubleSide
+                });
+
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+        object.scale.set(450, 450, 450);
+        object.position.set(-300,-350,-400);
+        scene.add(object);
+    },
+    function(xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function(error) {
+        console.log('An error happened: ' + error);
+    }
+);
+
+
+
+
+
+        
 /* OBJETOS COMPLEXOS*/
+
+
 var holder = create_holder();
     holder.position.set(-35, 17.75 * 6, 18); // Adjust the position as needed
     scene.add(holder);
 
 
  
-
+/*_____________ ventoinha  _____________*/
     function createFan() {
         const fan = new THREE.Group();
     
@@ -436,7 +944,7 @@ var holder = create_holder();
         var texture1 = new THREE.TextureLoader().load('./Objetos/textures/old-metalB.jpg');
         var texture2 = new THREE.TextureLoader().load('./Objetos/textures/old-wood.jpg');
         var texture3 = new THREE.TextureLoader().load('./Objetos/textures/old-metal.png');
-        var texture4 = new THREE.TextureLoader().load('./Objetos/textures/thread.jgp');
+        var texture4 = new THREE.TextureLoader().load('./Objetos/textures/thread.jpg');
 
 
         // Create the central motor   
@@ -479,24 +987,24 @@ var holder = create_holder();
         fan.add(sphere);
         sphere.scale.set(0.3, 0.3, 0.3);
 
-        // light sphere 
-        const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
-        const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const light = new THREE.Mesh(lightGeometry, lightMaterial);
-        light.position.y = -2.25; // Adjust position to be closer to the ceiling
-        light.position.x = 0; // Adjust position to be closer to the ceiling
-        light.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
-        fan.add(light);
-        light.scale.set(0.85, 0.85, 0.85);
+        // pointlight - na ventoinha
+    const lightGeometry = new THREE.SphereGeometry(1, 40, 40, 0, Math.PI, 0, Math.PI);
+    const lightMaterial = new THREE.MeshStandardMaterial({ color: 0xF4C174 });
+    const lightMesh = new THREE.Mesh(lightGeometry, lightMaterial);
+    lightMesh.position.y = -2.25; // Adjust position to be closer to the ceiling
+    lightMesh.position.x = 0; // Adjust position to be closer to the ceiling
+    lightMesh.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate the light to be horizontal
+    fan.add(lightMesh);
+    lightMesh.scale.set(0.85, 0.85, 0.85);
 
-      
-        
+    // Create a PointLight
+    const pointLight = new THREE.PointLight(0xF8C982, 5, 100); // color, intensity, distance orange color light  0xffa500
+    pointLight.position.copy(lightMesh.position);
+    fan.add(pointLight);
 
-
-
-
-
-
+    pointLight.castShadow = true;
+    pointLight.shadow.mapSize.width = 1024;
+    pointLight.position.y = -10; // Adjust position to be closer to the ceiling
 
 
     
@@ -534,6 +1042,7 @@ var holder = create_holder();
     }
     
   
+    /*_____________ cacifos _____________*/
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
@@ -548,8 +1057,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
         return new THREE.Mesh(geometry, material);
     }
 
-    
-
+   
     // Função para criar a maçaneta
     function create_handle() {
        
@@ -618,7 +1126,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
     // Dimensões do cacifo
     var lockerWidth = 1;
     var lockerHeight = 2;
-    var lockerDepth = 0.5;
+    var lockerDepth = 0.75;
 
     // Criando as paredes do cacifo
     var leftWall = create_wall(wallThickness, lockerHeight, lockerDepth, wallMaterial);
@@ -644,7 +1152,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // Criando a porta do cacifo
     var door = create_wall(lockerWidth - wallThickness , lockerHeight, doorThickness, doorMaterial);
-    door.position.set(0, lockerHeight / 2, lockerDepth-0.25 );
+    door.position.set(0, lockerHeight / 2, lockerDepth-0.35 );
 
     // adicionar uma bobradiça à porta
     var hinge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
@@ -668,7 +1176,31 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
 
 
+    door.open = false;
     
+    door.interact = function() {
+        if (!this.open) {
+            new TWEEN.Tween(this.rotation)
+                .to({ y: Math.PI / -2 }, 1000)
+                .start()
+                .onStart(() => {
+                    console.log('Door opening');
+                })
+                .onComplete(() => {
+                    this.open = true;
+                });
+        } else {
+            new TWEEN.Tween(this.rotation)
+                .to({ y: 0 }, 1000)
+                .start()
+                .onStart(() => {
+                    console.log('Door closing');
+                })
+                .onComplete(() => {
+                    this.open = false;
+                });
+        }
+    };
 
     // Adicionando a maçaneta à porta
     var handle = create_handle();
@@ -685,6 +1217,8 @@ function create_locker(x, y, z, isDoorOpen = false) {
     locker.add(shoeWall);
     locker.add(door);
 
+
+    
     // Posição do cacifo
     locker.position.set(x, y, z);
     locker.scale.set(8, 12, 8);
@@ -747,6 +1281,8 @@ function create_holder() {
      // Adjust the position as necessary
      holder.scale.set(3, 2, 3);
     return holder;
+
+
 }
     
     const OrthographicSphere = create_camera_sphere();
@@ -762,4 +1298,27 @@ function create_camera_sphere() {
     // Add the cube to your scene
     var geometry = new THREE.SphereGeometry(5, 32, 32);
     return new THREE.Mesh(geometry, materialTextura);
+}
+
+
+
+
+
+
+export function animate(renderer, camera) {
+    requestAnimationFrame(() => animate(renderer, camera));
+
+    // Update TWEEN animations
+    TWEEN.update();
+
+    // Render the scene
+    renderer.render(scene, camera);
+}
+
+export function start(renderer, camera) {
+    scene = createScene();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    animate(renderer, camera);
 }
