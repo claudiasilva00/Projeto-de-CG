@@ -160,8 +160,7 @@ scene.add(locker2);
 
     //adicionar o skybox à scene
     scene.add(skybox);
-
-
+    scene.skybox = skybox;
     //torre principal
     const objLoader = new OBJLoader();
     objLoader.load(
@@ -1150,33 +1149,35 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     var backWall = create_wall(lockerWidth, lockerHeight, wallThickness, wallMaterial);
     backWall.position.set(0, lockerHeight / 2, -lockerDepth / 2 + wallThickness / 2);
-
-    // Criando a porta do cacifo
-    var door = create_wall(lockerWidth - wallThickness , lockerHeight, doorThickness, doorMaterial);
-    door.position.set(0, lockerHeight / 2, lockerDepth-0.35 );
+    
 
     // adicionar uma bobradiça à porta
     var hinge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
-    hinge.position.set(-lockerWidth / 2.1, lockerHeight / 3, lockerDepth / 40);
-    door.add(hinge);
+    hinge.position.set(lockerWidth / 80, lockerHeight / 3, lockerDepth / 1.85);
+    leftWall.add(hinge);
     //duplicate hinge 
     var hinge2 = hinge.clone();
-    hinge2.position.set(-lockerWidth / 2.1, lockerHeight / 5, lockerDepth / 40);
-    door.add(hinge2);
+    hinge2.position.set(lockerWidth / 80, lockerHeight / 5, lockerDepth / 1.85);
+    leftWall.add(hinge2);
 
 
     // infireiores
 
     var hinge3 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), wallMaterial);
-    hinge3.position.set(-lockerWidth / 2.1, - lockerHeight / 3, lockerDepth / 40);
-    door.add(hinge3);
+    hinge3.position.set(lockerWidth / 80, - lockerHeight / 3, lockerDepth / 1.85);
+    leftWall.add(hinge3);
     //duplicate hinge 
     var hinge4 = hinge.clone();
-    hinge4.position.set(-lockerWidth / 2.1, -lockerHeight / 5, lockerDepth / 40);
-    door.add(hinge4);
+    hinge4.position.set(lockerWidth / 80, -lockerHeight / 5, lockerDepth / 1.85);
+    leftWall.add(hinge4);
 
+    // Criando a porta do cacifo
+    var door = create_wall(lockerWidth - wallThickness , lockerHeight, doorThickness, doorMaterial);
+    door.position.set(0, lockerHeight / 2, lockerDepth-0.35 );
 
-
+    door.geometry.translate(lockerWidth / 2, 0, 0);
+    door.position.x = (door.position.x - lockerWidth / 2);
+    door.position.z = (door.position.z - doorThickness * 1.5);
     door.open = false;
     
     door.interact = function() {
@@ -1205,7 +1206,7 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     // Adicionando a maçaneta à porta
     var handle = create_handle();
-    handle.position.set(0.35, wallThickness , 0);
+    handle.position.set(lockerWidth *0.8, wallThickness , 0);
     door.add(handle);
 
     // Adicionando as paredes ao grupo
