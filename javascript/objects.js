@@ -149,6 +149,18 @@ export function createScene() {
             console.log('An error happened: ' + error);
         }
     );
+
+    let event = new KeyboardEvent('keydown', {
+        key: 'c',
+        code: 'KeyC',
+        charCode: 'c'.charCodeAt(0),
+        keyCode: 'c'.charCodeAt(0),
+        which: 'c'.charCodeAt(0),
+        shiftKey: false,
+        ctrlKey: false,
+        altKey: false
+    });
+    
     // mesa
     objLoader.load(
         './Objetos/mesa1.obj', 
@@ -166,9 +178,13 @@ export function createScene() {
                         roughnessMap: roughnessMap,
                         side: THREE.DoubleSide
                     });
-
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.interact = function() {
+                        // simulate a button press "C"
+                        document.dispatchEvent(event);
+                    }
+
                 }
             });
             object.scale.set(0.01*6, 0.01*6, 0.01*6);
@@ -980,8 +996,13 @@ var holder = create_holder();
         return { fan, rotateFanBlades };
     }
     
-  
-    /*_____________ cacifos _____________*/
+    const OrthographicSphere = create_camera_sphere();
+    scene.add(OrthographicSphere);
+    scene.OrthographicSphere = OrthographicSphere; // Add this line
+    return scene;
+}
+
+/*_____________ cacifos _____________*/
 function create_locker(x, y, z, isDoorOpen = false) {
     var locker = new THREE.Group(); // Grupo para armazenar todas as partes do cacifo
 
@@ -990,28 +1011,16 @@ function create_locker(x, y, z, isDoorOpen = false) {
     var doorTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalDR.jpg');
     var handleTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalH.jpg'); // Textura da maçaneta
 
-    // Função para criar uma parede
-    function create_wall(width, height, depth, material) {
-        var geometry = new THREE.BoxGeometry(width, height, depth);
-        return new THREE.Mesh(geometry, material);
-    }
+    
 
-   
+    
     // Função para criar a maçaneta
     function create_handle() {
-       
-
+        
         var handle = new THREE.Group(); // Group to store all parts of the holder
-    
 
         // Textures
         var metalTexture = new THREE.TextureLoader().load('./Objetos/Textures/old-metalH.jpg'); // Assuming the texture for metal
-    
-        // Function to create a cylindrical rod
-        function create_rod(radius, height, material) {
-            var geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
-            return new THREE.Mesh(geometry, material);
-        }
     
         // Materials
         var metalMaterial = new THREE.MeshPhongMaterial({ map: metalTexture });
@@ -1020,9 +1029,6 @@ function create_locker(x, y, z, isDoorOpen = false) {
         var rodRadius = 0.25;
         var verticalRodHeight = 2;
         var horizontalRodLength = 6;
-    
-    
-        
     
         // Creating the vertical rods
         var leftVerticalRod = create_rod(rodRadius, verticalRodHeight, metalMaterial);
@@ -1037,20 +1043,20 @@ function create_locker(x, y, z, isDoorOpen = false) {
         horizontalRod.rotation.z = Math.PI / 2;
         horizontalRod.position.set(0, verticalRodHeight + 0.05 / 2, 0); // Position at the top of vertical rods
     
-       
+        
     
         // Adding the components to the holder group
-       
+        
         handle.add(leftVerticalRod);
         handle.add(rightVerticalRod);
         handle.add(horizontalRod);
-         handle.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2); // Rotate the holder to be vertical
+            handle.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2); // Rotate the holder to be vertical
         handle.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
         
         // handle.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate the holder to be vertical
-         // Adjust the position as necessary
-         handle.scale.set(1/10, 1/10, 1/10);
-         
+            // Adjust the position as necessary
+            handle.scale.set(1/10, 1/10, 1/10);
+            
         return handle;
     }
 
@@ -1167,6 +1173,19 @@ function create_locker(x, y, z, isDoorOpen = false) {
 
     return locker;
 }
+
+// Função para criar uma parede
+function create_wall(width, height, depth, material) {
+    var geometry = new THREE.BoxGeometry(width, height, depth);
+    return new THREE.Mesh(geometry, material);
+}
+
+// Function to create a cylindrical rod
+function create_rod(radius, height, material) {
+    var geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
+    return new THREE.Mesh(geometry, material);
+}
+
 function create_holder() {
     var holder = new THREE.Group(); // Group to store all parts of the holder
     
@@ -1222,14 +1241,6 @@ function create_holder() {
      // Adjust the position as necessary
      holder.scale.set(3, 2, 3);
     return holder;
-
-
-}
-    
-    const OrthographicSphere = create_camera_sphere();
-    scene.add(OrthographicSphere);
-    scene.OrthographicSphere = OrthographicSphere; // Add this line
-    return scene;
 }
 
 function create_camera_sphere() {
@@ -1288,4 +1299,4 @@ function animateBird(object, pathPoints, duration) {
             object.lookAt(position.clone().add(tangent));
         })
         .start();
-}
+}   

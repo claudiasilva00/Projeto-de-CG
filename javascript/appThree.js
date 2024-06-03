@@ -30,7 +30,6 @@ let smoothFactor = 0.035; // Adjust this value to change the smoothness
 let keyState = {};
 
 document.addEventListener('click', function() {
-    controls.lock();
     if (intersects.length > 0) {
         try {
             console.log(intersects[0].point);
@@ -94,9 +93,11 @@ function change_camera() {
     if(camara == camaraPerspetiva){
         console.log("perspetiva");
         camara = OrthographicCamera;
+        controls.unlock();
     }else{
         console.log("ortografica");
         camara = camaraPerspetiva;
+        controls.lock();
     }
 }
 
@@ -208,4 +209,5 @@ function Start() {
     cena.raycasterline = line;
     cena.OrthographicSphere.position.set(OrthographicCamera.position.x, OrthographicCamera.position.y, OrthographicCamera.position.z);
     document.body.appendChild(renderer.domElement);
+    controls.lock();
 }
