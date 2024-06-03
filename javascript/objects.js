@@ -94,6 +94,7 @@ scene.add(locker2);
 
     //adicionar o skybox à scene
     scene.add(skybox);
+    scene.skybox = skybox;
     //torre principal
     const objLoader = new OBJLoader();
     objLoader.load(

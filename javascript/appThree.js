@@ -21,14 +21,13 @@ points[0] = new THREE.Vector3(0, 0, 0);
 points[1] = new THREE.Vector3(0, 100, 0);
 geometry.setFromPoints(points);
 let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xff0000}));
+line.name = 'raycaster';
 let direction = new THREE.Vector3();
 const controls = new PointerLockControls(camaraPerspetiva, renderer.domElement);
 let move = new THREE.Vector3();
 let targetPosition = { x: 30, y: 100, z: 100 };
 let smoothFactor = 0.035; // Adjust this value to change the smoothness
 let keyState = {};
-
-
 
 document.addEventListener('click', function() {
     controls.lock();
@@ -80,6 +79,10 @@ function update_movement() {
     targetPosition.y += move.y;
     targetPosition.z += move.z;
     move = new THREE.Vector3();
+    //gravity
+    //targetPosition.y -= 0.1;
+    //collision
+    //camara_collision();
     // Adjust the camera position by a fraction of the difference
     camaraPerspetiva.position.x +=  (targetPosition.x - camaraPerspetiva.position.x) * smoothFactor;
     camaraPerspetiva.position.y +=  (targetPosition.y - camaraPerspetiva.position.y) * smoothFactor;
@@ -98,13 +101,13 @@ function change_camera() {
 
 function update_raycaster() {
     //update ray direction
-    ray.setFromCamera({x: 0, y: 0}, camaraPerspetiva);
+    ray.setFromCamera({x: 0, y: -0.1}, camaraPerspetiva);
     // set the line to start at the camera position and go in the direction of the ray
     points[0] = new THREE.Vector3(camaraPerspetiva.position.x, camaraPerspetiva.position.y, camaraPerspetiva.position.z);
     points[1] = new THREE.Vector3(camaraPerspetiva.position.x + (100 * direction.x), camaraPerspetiva.position.y + (100 * direction.y), camaraPerspetiva.position.z + (100 * direction.z));
     geometry.setFromPoints(points);
     // Get the closest intersection
-    intersects = ray.intersectObjects(cena.children);
+    intersects = ray.intersectObjects(cena.children).filter((intersect) => intersect.object !== cena.raycasterline && intersect.object !== cena.skybox);;   
     if (intersects.length > 0) {
             if ( typeof intersects[0].object.interact === 'function') { 
             // If the object has an interact function, make it shine
@@ -137,16 +140,53 @@ function animate() {
 }
 
 
-function loop() {
-    direction = get_camara_direction();
-    cena.children.forEach((child) => {
-        try {
-        child.material.emissiveIntensity = 0;
+function camara_collision() {
+    //create 6 rays to detect collision at the 6 sides of the camera
+    let ray1 = new THREE.Raycaster();
+    let ray2 = new THREE.Raycaster();
+    let ray3 = new THREE.Raycaster();
+    let ray4 = new THREE.Raycaster();
+    let ray5 = new THREE.Raycaster();
+    let ray6 = new THREE.Raycaster();
+    ray1.set(camaraPerspetiva.position, new THREE.Vector3(0, 0, 1));
+    ray2.set(camaraPerspetiva.position, new THREE.Vector3(0, 0, -1));
+    ray3.set(camaraPerspetiva.position, new THREE.Vector3(1, 0, 0));
+    ray4.set(camaraPerspetiva.position, new THREE.Vector3(-1, 0, 0));
+    ray5.set(camaraPerspetiva.position, new THREE.Vector3(0, 1, 0));
+    ray6.set(camaraPerspetiva.position, new THREE.Vector3(0, -1, 0));
+    //check for collision
+    let collision_distance = 0.5;
+    let collision_objects = cena.children.filter((object) => object.object !== cena.raycasterline && object.object !== cena.skybox);
+    collision_objects.forEach((object) => {
+        let intersects = ray1.intersectObject(object);
+        if (intersects.length > 0 && intersects[0].distance < collision_distance) {
+            targetPosition.z = intersects[0].point.z + collision_distance
         }
-        catch (error) {
-            //console.log(error);
+        intersects = ray2.intersectObject(object);
+        if (intersects.length > 0 && intersects[0].distance < collision_distance) {
+            targetPosition.z = intersects[0].point.z - collision_distance
+        }
+        intersects = ray3.intersectObject(object);
+        if (intersects.length > 0 && intersects[0].distance < collision_distance) {
+            targetPosition.x = intersects[0].point.y + collision_distance
+        }
+        intersects = ray4.intersectObject(object);
+        if (intersects.length > 0 && intersects[0].distance < collision_distance) {
+            targetPosition.x = intersects[0].point.y - collision_distance
+        }
+        intersects = ray5.intersectObject(object);
+        if (intersects.length > 0 && intersects[0].distance < collision_distance) {
+            targetPosition.y = intersects[0].point.x + collision_distance
+        }
+        intersects = ray6.intersectObject(object);
+        if (intersects.length > 0 && intersects[0].distance < collision_distance) {
+            targetPosition.y = intersects[0].point.x - collision_distance
         }
     });
+}
+
+function loop() {
+    direction = get_camara_direction();
     key_bindings();
     update_movement();
     update_raycaster();
@@ -163,6 +203,7 @@ function Start() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     cena = createScene();
     cena.add(line);
+    cena.raycasterline = line;
     cena.OrthographicSphere.position.set(OrthographicCamera.position.x, OrthographicCamera.position.y, OrthographicCamera.position.z);
     document.body.appendChild(renderer.domElement);
 }
