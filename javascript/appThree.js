@@ -9,9 +9,9 @@ let cena = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 const camaraPerspetiva = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
 camaraPerspetiva.position.set(30,100, 100);
-const OrthographicCamera = new THREE.OrthographicCamera(-100, 100, 100, -100, 0, 10000);
-OrthographicCamera.position.set(0, 1000, 0);
-OrthographicCamera.lookAt(0, 0, 0);
+const OrthographicCamera = new THREE.OrthographicCamera(-350, 350, 250, -250, 0, 10000);
+OrthographicCamera.position.set(-300, 0, -300);
+OrthographicCamera.lookAt(-300, -1000, -300);
 OrthographicCamera.updateProjectionMatrix();
 let ray = new THREE.Raycaster();
 let intersects = [];
@@ -44,8 +44,7 @@ document.addEventListener('click', function() {
 
 document.addEventListener('keydown', function(event) {
     keyState[event.key] = true;
-    console.log(camaraPerspetiva.position);
-
+    console.log(keyState);
     if (event.key === 'c') {change_camera();}
 }, false);
 
@@ -114,7 +113,7 @@ function update_raycaster() {
             if ( typeof intersects[0].object.interact === 'function') { 
             // If the object has an interact function, make it shine
             intersects[0].object.material.emissive.set(0x00ff00); // Set the emissive color to green
-            intersects[0].object.material.emissiveIntensity = 0.1; // Increase the emissive intensity
+            intersects[0].object.material.emissiveIntensity = 0.25; // Increase the emissive intensity
             //make the object shine fade out
             new TWEEN.Tween(intersects[0].object.material.emissive)
             .to({ r: 0, g: 0, b: 0 }, 1000)

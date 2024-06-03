@@ -2,94 +2,22 @@ import * as THREE from 'three';
 import { OBJLoader } from 'OBJLoader';
 let renderer, scene, camera, ocean;
 
-
-function animateWings(leftWing, rightWing) {
-    const wingRotation = { angle: 0 };
-
-    new TWEEN.Tween(wingRotation)
-        .to({ angle: Math.PI / 4 }, 1000)
-        .onUpdate(() => {
-            leftWing.rotation.z = wingRotation.angle;
-            rightWing.rotation.z = -wingRotation.angle;
-        })
-        .repeat(Infinity)
-        .yoyo(true)
-        .start();
-}
-
-function animateBird(object, pathPoints, duration) {
-    const curve = new THREE.CatmullRomCurve3(pathPoints);
-    curve.closed = true; // Fechando o caminho para garantir que comece e termine no mesmo ponto
-    const animation = { t: 0 };
-
-    new TWEEN.Tween(animation)
-        .to({ t: 1 }, duration)
-        .onUpdate(() => {
-            const position = curve.getPoint(animation.t);
-            object.position.copy(position);
-
-            const tangent = curve.getTangent(animation.t);
-            object.lookAt(position.clone().add(tangent));
-        })
-        .repeat(Infinity)
-        .start();
-}
-
-
 export function createScene() {
     // Criação da scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("skyblue");
-    const camaraPerspetiva = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
    // Uso da função create_locker
 
-
    // Criação do cacifo
-var locker1 = create_locker(-33, 13.85*6, 18);
-var locker2 = create_locker(-33, 13.85*6, 28);
-scene.add(locker1);
-scene.add(locker2);
-
-
-
-// const door1 = locker1.door;
-// const handle1 = locker1.handle;
-// const door2 = locker2.door;
-// const handle2 = locker2.handle;
-
-//var doorGroup1 = new THREE.Group();
-// doorGroup1.add(door1);
-// doorGroup1.add(handle1);
-
-
-// var doorGroup2 = new THREE.Group();
-// doorGroup2.add(door2);
-// doorGroup2.add(handle2);
-
-// applyDoorProperties(doorGroup1);
-// applyDoorProperties(doorGroup2);
-
-// scene.add(doorGroup1);
-// scene.add(doorGroup2);
-
-
-
-
-
- 
-
-  // 
-  
-  const { fan, rotateFanBlades } = createFan();
-  scene.add(fan);
-  fan.scale.set(2, 2, 2);
-  fan.position.set(0, 19.9*6, 8); // Ajustar a posição conforme necessário
-
-
-
-    
-    //variaveis 
-    let chair, spotLightTarget;
+    var locker1 = create_locker(-33, 13.85*6, 18);
+    var locker2 = create_locker(-33, 13.85*6, 28);
+    scene.add(locker1);
+    scene.add(locker2);
+    let pointLight = new THREE.PointLight(0xffffff, 2); // White light with intensity
+    const { fan, rotateFanBlades } = createFan();
+    scene.add(fan);
+    fan.scale.set(2, 2, 2);
+    fan.position.set(0, 19.9*6, 8); // Ajustar a posição conforme necessário
 
     //luz ambiente 
     const ambientLight = new THREE.AmbientLight(0x888888, 1.5); // intensidade
@@ -102,29 +30,25 @@ scene.add(locker2);
     scene.add(directionalLight);
 
     //spotlight
-     // Directional light for general illumination
-     const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
-     directionalLight.position.set(10, 20, 10);
-     directionalLight.castShadow = true;
-     scene.add(directionalLight);
- 
-     // Spotlight for chair
-     const spotlight = new THREE.SpotLight(0xff0000, 2); // Red light with intensity
-     spotlight.position.set(0, 116.5,58); // Position the spotlight above the chair
-     //0.9791562630023608, y: 115.7070404093403, z: 60.341531771140225
-     spotlight.target.position.set(0, 15*6, 12*6); // Target the chair
-     spotlight.angle = Math.PI / 5; // Narrower beam angle
-     spotlight.penumbra = 0.1; // Softer edges
-     spotlight.decay = 1; // Light decay
-     spotlight.distance = 60; // Limit the distance the light reaches
-     spotlight.castShadow = true;
-     scene.add(spotlight);
-     scene.add(spotlight.target);
+    // Directional light for general illumination
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(10, 20, 10);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
 
-    //  // pointlight
-    //     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-    //     pointLight.position.set(0, 116.5, 58);
-    //     scene.add(pointLight);
+    // Spotlight for chair
+    const spotlight = new THREE.SpotLight(0xff0000, 2); // Red light with intensity
+    spotlight.position.set(0, 116.5,58); // Position the spotlight above the chair
+    //0.9791562630023608, y: 115.7070404093403, z: 60.341531771140225
+    spotlight.target.position.set(0, 15*6, 12*6); // Target the chair
+    spotlight.angle = Math.PI / 5; // Narrower beam angle
+    spotlight.penumbra = 0.1; // Softer edges
+    spotlight.decay = 1; // Light decay
+    spotlight.distance = 60; // Limit the distance the light reaches
+    spotlight.castShadow = true;
+    scene.add(spotlight);
+    scene.add(spotlight.target);
+    
 
 
 
@@ -273,13 +197,20 @@ scene.add(locker2);
                     });
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.interact = function() {
+                        // Toggle the light switch
+                        if (pointLight.intensity === 0) {
+                            pointLight.intensity = 2;
+                        } else {
+                            pointLight.intensity = 0;
+                        }
+                    }
                 }
             });
             object.position.y = 0; 
             object.position.set(0*6, 15.75*6, -3.25*6);
             object.scale.set(2*6, 2*6, 2*6);  
             scene.add(object);
-
         },
         function(xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -303,6 +234,14 @@ scene.add(locker2);
                     });
                     child.material = material;
                     child.material.needsUpdate = true;
+                    child.interact = function() {
+                        // Toggle the light switch
+                        if (spotlight.intensity === 0) {
+                            spotlight.intensity = 2;
+                        } else {
+                            spotlight.intensity = 0;
+                        }
+                    }
                 }
             });
             object.position.y = 0; 
@@ -998,7 +937,7 @@ var holder = create_holder();
     lightMesh.scale.set(0.85, 0.85, 0.85);
 
     // Create a PointLight
-    const pointLight = new THREE.PointLight(0xF8C982, 5, 100); // color, intensity, distance orange color light  0xffa500
+    pointLight = new THREE.PointLight(0xF8C982, 5, 100); // color, intensity, distance orange color light  0xffa500
     pointLight.position.copy(lightMesh.position);
     fan.add(pointLight);
 
@@ -1302,11 +1241,6 @@ function create_camera_sphere() {
     return new THREE.Mesh(geometry, materialTextura);
 }
 
-
-
-
-
-
 export function animate(renderer, camera) {
     requestAnimationFrame(() => animate(renderer, camera));
 
@@ -1323,4 +1257,35 @@ export function start(renderer, camera) {
     document.body.appendChild(renderer.domElement);
 
     animate(renderer, camera);
+}
+
+function animateWings(leftWing, rightWing) {
+    const wingRotation = { angle: 0 };
+
+    new TWEEN.Tween(wingRotation)
+        .to({ angle: Math.PI / 4 }, 1000)
+        .onUpdate(() => {
+            leftWing.rotation.z = wingRotation.angle;
+            rightWing.rotation.z = -wingRotation.angle;
+        })
+        .repeat(Infinity)
+        .yoyo(true)
+        .start();
+}
+
+function animateBird(object, pathPoints, duration) {
+    const curve = new THREE.CatmullRomCurve3(pathPoints);
+    curve.closed = true; // Fechando o caminho para garantir que comece e termine no mesmo ponto
+    const animation = { t: 0 };
+
+    new TWEEN.Tween(animation)
+        .to({ t: 1 }, duration)
+        .onUpdate(() => {
+            const position = curve.getPoint(animation.t);
+            object.position.copy(position);
+
+            const tangent = curve.getTangent(animation.t);
+            object.lookAt(position.clone().add(tangent));
+        })
+        .start();
 }
